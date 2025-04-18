@@ -60,13 +60,13 @@
 			name: 'Settings',
 			icon: CogOutline,
 			children: {
-				'Users': '/authentication/sign-in',
-				'Roles': '/authentication/sign-up',
-				'Profiles': '/authentication/forgot-password',
-				'Structures': '/authentication/reset-password',
-				'Domains': '/authentication/profile-lock'
+				Users: '/crud/users',
+				Profiles: '/crud/profiles',
+				Structures: '/crud/structures',
+				Domains: '/crud/domains',
+				Employers: '/crud/employers'
 			}
-		},
+		}
 	];
 
 	let dropdowns = Object.fromEntries(Object.keys(posts).map((x) => [x, false]));
