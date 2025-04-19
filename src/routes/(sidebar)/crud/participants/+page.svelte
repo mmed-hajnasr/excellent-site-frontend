@@ -18,14 +18,15 @@
 		PlusOutline,
 		TrashBinSolid
 	} from 'flowbite-svelte-icons';
+    // TODO: connection to api;
 	import Participants from '../../../data/participants.json';
 	import { imagesPath } from '../../../utils/variables';
 
-	import User from './User.svelte';
+	import AddEdit from './AddEdit.svelte';
 	import Delete from './Delete.svelte';
 	import MetaTag from '../../../utils/MetaTag.svelte';
 
-	let openUser: boolean = false; // modal control
+	let openParticipant: boolean = false; // modal control
 	let openDelete: boolean = false; // modal control
 
 	let current_user: any = {};
@@ -48,7 +49,7 @@
 				<Button
 					size="sm"
 					class="gap-2 px-3"
-					on:click={() => ((current_user = user), (openUser = true))}
+					on:click={() => ((current_user = user), (openParticipant = true))}
 				>
 					<SearchOutline size="sm" /> Search
 				</Button>
@@ -58,7 +59,7 @@
 				<Button
 					size="sm"
 					class="gap-2 whitespace-nowrap px-3"
-					on:click={() => ((current_user = {}), (openUser = true))}
+					on:click={() => ((current_user = {}), (openParticipant = true))}
 				>
 					<PlusOutline size="sm" />Add participant
 				</Button>
@@ -97,7 +98,7 @@
 						<Button
 							size="sm"
 							class="gap-2 px-3"
-							on:click={() => ((current_user = participant), (openUser = true))}
+							on:click={() => ((current_user = participant), (openParticipant = true))}
 						>
 							<EditOutline size="sm" /> Edit Participant
 						</Button>
@@ -118,5 +119,5 @@
 
 <!-- Modals -->
 
-<User bind:open={openUser} data={current_user} />
+<AddEdit bind:open={openParticipant} data={current_user} />
 <Delete bind:open={openDelete} />

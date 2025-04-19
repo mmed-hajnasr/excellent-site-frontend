@@ -1,6 +1,23 @@
 <script lang="ts">
-	import { Button, Input, Label, Modal, Textarea } from 'flowbite-svelte';
+	import { Button, Select, Input, Label, Modal, Textarea } from 'flowbite-svelte';
 	export let open: boolean = false; // modal control
+	let selected;
+
+	// TODO: get all structures api:
+	import Profiles from '../../../data/structures.json';
+
+	let pitems = Profiles.map((profile) => ({
+		value: profile.id.toString(), // Convert id to string for consistency with countries format
+		name: profile.name
+	}));
+
+	// TODO: get all structures api:
+	import Structures from '../../../data/structures.json';
+
+	let structure_items = Structures.map((structure) => ({
+		value: structure.id.toString(),
+		name: structure.name
+	}));
 
 	export let data: Record<string, string> = {};
 
@@ -48,47 +65,23 @@
 					/>
 				</Label>
 				<Label class="col-span-6 space-y-2 sm:col-span-3">
-					<span>Position</span>
+					<span>Phone Number</span>
 					<Input
-						name="position"
+						name="phone"
+						type="tel"
 						class="border outline-none"
-						placeholder="e.g. React Developer"
-						required
-					/>
-				</Label>
-
-				<Label class="col-span-6 space-y-2 sm:col-span-3">
-					<span>Current Password</span>
-					<Input
-						name="current-password"
-						type="password"
-						class="border outline-none"
-						placeholder="••••••••"
-						required
+						placeholder="e.g. 56 200 029"
 					/>
 				</Label>
 				<Label class="col-span-6 space-y-2 sm:col-span-3">
-					<span>New Password</span>
-					<Input
-						name="news-password"
-						type="password"
-						class="border outline-none"
-						placeholder="••••••••"
-						required
-					/>
+					Profile
+					<Select class="mt-2" items={pitems} bind:value={selected} />
 				</Label>
 
-				<Label class="col-span-6 space-y-2">
-					<span>Biography</span>
-					<Textarea
-						id="biography"
-						rows={4}
-						class="bg-gray-50 outline-none dark:bg-gray-700"
-						placeholder="👨‍💻Full-stack web developer. Open-source contributor."
-					>
-						👨‍💻Full-stack web developer. Open-source contributor.
-					</Textarea>
-				</Label>
+				<!-- <Label class="col-span-6 space-y-2 sm:col-span-3"> -->
+				<!--                 Structure -->
+				<!-- 	<Select class="mt-2" {structure_items} bind:value={selected} /> -->
+				<!-- </Label> -->
 			</div>
 		</form>
 	</div>
