@@ -24,6 +24,23 @@
 	// 	}
 	// });
 
+	let searchQuery: string = '';
+	async function search() {
+		let request = !searchQuery.trim()
+			? '/participants'
+			: '/participants?search=' + searchQuery.trim();
+		// console.log(request);
+		// try {
+		// 	const res = await authorizedFetch(request);
+		//
+		// 	if (!res.ok) throw new Error(`Error fetching participants: ${res.statusText}`);
+		// 	const body = await res.json();
+		// 	Participants = body.participants;
+		// } catch (err) {
+		// 	console.error(err);
+		// }
+	}
+
 	let openAddEdit: boolean = false; // modal control
 	let openDelete: boolean = false; // modal control
 
@@ -43,9 +60,12 @@
 
 		<Toolbar embedded class="w-full py-4 text-gray-500  dark:text-gray-400">
 			<div class="flex items-center space-x-2">
-				<Input placeholder="Search for participants" class="me-4 w-80 border xl:w-96" />
-				<!-- TODO: search button functionnality -->
-				<Button size="sm" class="gap-2 px-3">
+				<Input
+					placeholder="Search for participants"
+					class="me-4 w-80 border xl:w-96"
+					bind:value={searchQuery}
+				/>
+				<Button size="sm" class="gap-2 px-3" on:click={search}>
 					<SearchOutline size="sm" /> Search
 				</Button>
 			</div>

@@ -1,18 +1,6 @@
 <script>
-	import AppsMenu from '../utils/widgets/AppsMenu.svelte';
 	import UserMenu from '../utils/widgets/UserMenu.svelte';
-	import {
-		DarkMode,
-		Dropdown,
-		DropdownItem,
-		NavBrand,
-		NavHamburger,
-		NavLi,
-		NavUl,
-		Navbar,
-		Search
-	} from 'flowbite-svelte';
-	import { ChevronDownOutline } from 'flowbite-svelte-icons';
+	import { DarkMode, NavBrand, NavHamburger, Navbar } from 'flowbite-svelte';
 	import '../../app.pcss';
 	import Users from '../data/users.json';
 
@@ -31,6 +19,7 @@
 	</NavBrand>
 	<div class="ms-auto flex items-center text-gray-500 sm:order-2 dark:text-gray-400">
 		<DarkMode />
-		<UserMenu {...Users[3]} />
+		<!-- TODO: put the username here -->
+		<UserMenu first_name="mmed" last_name="ben hadj nasr" />
 	</div>
 </Navbar>
