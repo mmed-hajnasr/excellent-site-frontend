@@ -1,75 +1,51 @@
 <script lang="ts">
-	import {
-		Avatar,
-		Breadcrumb,
-		BreadcrumbItem,
-		Button,
-		Checkbox,
-		Heading,
-		Indicator
-	} from 'flowbite-svelte';
+	import { Button, Heading } from 'flowbite-svelte';
 	import { Input, Table, TableBody, TableBodyCell, TableBodyRow, TableHead } from 'flowbite-svelte';
-	import { TableHeadCell, Toolbar, ToolbarButton, ToolbarGroup } from 'flowbite-svelte';
-	import { CogSolid, DotsVerticalOutline, DownloadSolid } from 'flowbite-svelte-icons';
-	import {
-		EditOutline,
-		SearchOutline,
-		ExclamationCircleSolid,
-		PlusOutline,
-		TrashBinSolid
-	} from 'flowbite-svelte-icons';
+	import { TableHeadCell, Toolbar } from 'flowbite-svelte';
+	import { EditOutline, SearchOutline, PlusOutline, TrashBinSolid } from 'flowbite-svelte-icons';
 	import { onMount } from 'svelte';
-
-	let isNotAuthenticated: boolean = false;
-	let Participants: any[] = [];
-	onMount(async () => {
-		try {
-			const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/participants`, {
-				headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-			});
-			if (res.status === 401) isNotAuthenticated = true; // Unauthorized (token is not valid)
-			if (!res.ok) throw new Error(`Error fetching participants: ${res.statusText}`);
-			isNotAuthenticated = false;
-			const body = await res.json();
-			Participants = body.participants;
-		} catch (err) {
-			console.error(err);
-		}
-	});
-
-	import { imagesPath } from '../../../utils/variables';
-
 	import AddEdit from './AddEdit.svelte';
 	import Delete from './Delete.svelte';
-	import Unauthorized from '../../../authentication/Unauthorized.svelte';
 	import MetaTag from '../../../utils/MetaTag.svelte';
+	import { authorizedFetch } from '../../../utils/api';
 
-	let openParticipant: boolean = false; // modal control
+	// let Participants: any[] = [];
+	import Participants from '../../../data/participants.json';
+
+	// onMount(async () => {
+	// 	try {
+	// 		const res = await authorizedFetch('/participants');
+	//
+	// 		if (!res.ok) throw new Error(`Error fetching participants: ${res.statusText}`);
+	// 		const body = await res.json();
+	// 		Participants = body.participants;
+	// 	} catch (err) {
+	// 		console.error(err);
+	// 	}
+	// });
+
+	let openAddEdit: boolean = false; // modal control
 	let openDelete: boolean = false; // modal control
 
-	let current_user: any = {};
+	let current_participant: any = {};
 	const path: string = '/crud/participants';
 	const title: string = 'Excellent training - Participants';
 	const subtitle: string = 'Participants';
 </script>
 
-{#if !isNotAuthenticated}
-	<MetaTag {path} {title} {subtitle} />
+<MetaTag {path} {title} {subtitle} />
 
-	<main class="relative h-full w-full overflow-y-auto bg-white dark:bg-gray-800">
-		<div class="p-4">
-			<Heading tag="h1" class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">
-				All Participants
-			</Heading>
+<main class="relative h-full w-full overflow-y-auto bg-white dark:bg-gray-800">
+	<div class="p-4">
+		<Heading tag="h1" class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">
+			All Participants
+		</Heading>
 
 		<Toolbar embedded class="w-full py-4 text-gray-500  dark:text-gray-400">
 			<div class="flex items-center space-x-2">
 				<Input placeholder="Search for participants" class="me-4 w-80 border xl:w-96" />
-				<Button
-					size="sm"
-					class="gap-2 px-3"
-					on:click={() => ((current_user = user), (openParticipant = true))}
-				>
+				<!-- TODO: search button functionnality -->
+				<Button size="sm" class="gap-2 px-3">
 					<SearchOutline size="sm" /> Search
 				</Button>
 			</div>
@@ -78,7 +54,7 @@
 				<Button
 					size="sm"
 					class="gap-2 whitespace-nowrap px-3"
-					on:click={() => ((current_user = {}), (openParticipant = true))}
+					on:click={() => ((current_participant = {}), (openAddEdit = true))}
 				>
 					<PlusOutline size="sm" />Add participant
 				</Button>
@@ -101,10 +77,6 @@
 					<TableBodyCell class="w-4 p-4"></TableBodyCell>
 					<TableBodyCell class="mr-12 flex items-center space-x-6 whitespace-nowrap p-4">
 						<div class="text-sm font-normal text-gray-500 dark:text-gray-400">
-							<div class="text-base font-semibold text-gray-900 dark:text-white">
-								{participant.first_name}
-								{participant.last_name}
-							</div>
 							<div class="text-sm font-normal text-gray-500 dark:text-gray-400">
 								<div class="text-base font-semibold text-gray-900 dark:text-white">
 									{participant.first_name}
@@ -123,7 +95,7 @@
 						<Button
 							size="sm"
 							class="gap-2 px-3"
-							on:click={() => ((current_user = participant), (openParticipant = true))}
+							on:click={() => ((current_participant = participant), (openAddEdit = true))}
 						>
 							<EditOutline size="sm" /> Edit Participant
 						</Button>
@@ -131,7 +103,7 @@
 							color="red"
 							size="sm"
 							class="gap-2 px-3"
-							on:click={() => ((current_user = participant), (openDelete = true))}
+							on:click={() => ((current_participant = participant), (openDelete = true))}
 						>
 							<TrashBinSolid size="sm" /> Delete Participant
 						</Button>
@@ -141,40 +113,6 @@
 		</TableBody>
 	</Table>
 </main>
-
 <!-- Modals -->
-
-<AddEdit bind:open={openParticipant} data={current_user} />
-						</TableBodyCell>
-						<TableBodyCell class="p-4">{participant.phone_number}</TableBodyCell>
-						<TableBodyCell class="p-4">{participant.profile}</TableBodyCell>
-						<TableBodyCell class="p-4">{participant.structure}</TableBodyCell>
-						<TableBodyCell class="space-x-2 p-4">
-							<Button
-								size="sm"
-								class="gap-2 px-3"
-								on:click={() => ((current_user = participant), (openUser = true))}
-							>
-								<EditOutline size="sm" /> Edit Participant
-							</Button>
-							<Button
-								color="red"
-								size="sm"
-								class="gap-2 px-3"
-								on:click={() => ((current_user = participant), (openDelete = true))}
-							>
-								<TrashBinSolid size="sm" /> Delete Participant
-							</Button>
-						</TableBodyCell>
-					</TableBodyRow>
-				{/each}
-			</TableBody>
-		</Table>
-	</main>
-{/if}
-
-<!-- Modals -->
-
-<Unauthorized bind:open={isNotAuthenticated} />
-<AddEdit bind:open={openUser} data={current_user} />
-<Delete bind:open={openDelete} />
+<AddEdit bind:open={openAddEdit} data={current_participant} />
+<Delete bind:open={openDelete} participant_id={current_participant.id} />

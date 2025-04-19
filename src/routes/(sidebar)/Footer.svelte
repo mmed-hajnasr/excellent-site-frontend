@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Card, Frame, type LinkType } from 'flowbite-svelte';
+	import {Frame, type LinkType } from 'flowbite-svelte';
 	import {
 		DiscordSolid,
 		DribbbleSolid,
@@ -52,9 +52,3 @@
 		{/each}
 	</div>
 </Frame>
-
-<p class="my-10 text-center text-sm text-gray-500">
-	© 2019-2023 <a href="https://flowbite.com/" class="hover:underline" target="_blank">
-		Flowbite.com
-	</a>. All rights reserved.
-</p>

@@ -3,7 +3,7 @@
 	import { Button, P } from 'flowbite-svelte';
 	export let title = 'Page not found';
 	export let description =
-		'Oops! Looks like you followed a bad link. If you think this is a problem with us, please	tell us.';
+		'This page does not exist or you do not have the authorisation to access it!';
 	export let image = {
 		src: imagesPath('404.svg', 'illustrations'),
 		alt: 'astronaut'

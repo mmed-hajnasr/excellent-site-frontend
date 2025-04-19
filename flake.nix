@@ -18,7 +18,7 @@
 
       devShells = forEachSupportedSystem ({ pkgs }: {
         default = pkgs.mkShell {
-          packages = with pkgs; [ node2nix nodejs nodePackages.pnpm yarn tailwindcss biome ];
+          packages = with pkgs; [ node2nix nodejs nodePackages.pnpm yarn tailwindcss biome typescript-language-server svelte-language-server ];
         };
       });
     };
