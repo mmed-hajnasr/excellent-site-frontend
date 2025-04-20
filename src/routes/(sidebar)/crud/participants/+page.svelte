@@ -16,7 +16,6 @@
 	// 	try {
 	// 		const res = await authorizedFetch('/participants');
 	//
-	// 		if (!res.ok) throw new Error(`Error fetching participants: ${res.statusText}`);
 	// 		const body = await res.json();
 	// 		Participants = body.participants;
 	// 	} catch (err) {
@@ -31,9 +30,8 @@
 			: '/participants?search=' + searchQuery.trim();
 		// console.log(request);
 		// try {
-		// 	const res = await authorizedFetch(request);
+		// const res = await authorizedFetch(request);
 		//
-		// 	if (!res.ok) throw new Error(`Error fetching participants: ${res.statusText}`);
 		// 	const body = await res.json();
 		// 	Participants = body.participants;
 		// } catch (err) {

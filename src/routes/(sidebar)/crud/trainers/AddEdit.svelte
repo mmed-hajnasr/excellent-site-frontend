@@ -1,11 +1,28 @@
 <script lang="ts">
-	import { Button, Input, Label, Modal, Textarea } from 'flowbite-svelte';
+	import { Button, Select, Input, Label, Modal } from 'flowbite-svelte';
 	export let open: boolean = false; // modal control
+
+	// TODO: get all employers api:
+	import Employers from '../../../data/employers.json';
+
+	let employer_items = Employers.map((employer) => ({
+		value: employer.id,
+		name: employer.name
+	}));
 
 	export let data: Record<string, string> = {};
 
+	let selected_employer: number | undefined;
+
 	function init(form: HTMLFormElement) {
-		if (data?.name) [data.first_name, data.last_name] = data.name.split(' ');
+		if (data?.Employer) {
+			const matchingEmployer = employer_items.find((s) => s.name === data.Employer);
+			if (matchingEmployer) {
+				selected_employer = matchingEmployer.value;
+			}
+		} else {
+			selected_employer = undefined;
+		}
 		for (const key in data) {
 			// console.log(key, data[key]);
 			const el = form.elements.namedItem(key);
@@ -22,13 +39,17 @@
 
 <Modal
 	bind:open
-	title={Object.keys(data).length ? 'Edit user' : 'Add new user'}
+	title={Object.keys(data).length ? 'Edit trainer' : 'Add new trainer'}
 	size="md"
 	class="m-4"
 >
 	<!-- Modal body -->
 	<div class="space-y-6 p-0">
 		<form action="#" use:init>
+			<!-- add the id of the trainer to be edited -->
+			{#if data?.id}
+				<input type="hidden" name="id" value={data.id} />
+			{/if}
 			<div class="grid grid-cols-6 gap-6">
 				<Label class="col-span-6 space-y-2 sm:col-span-3">
 					<span>First Name</span>
@@ -48,46 +69,22 @@
 					/>
 				</Label>
 				<Label class="col-span-6 space-y-2 sm:col-span-3">
-					<span>Position</span>
+					<span>Phone Number</span>
 					<Input
-						name="position"
+						name="phone_number"
+						type="tel"
 						class="border outline-none"
-						placeholder="e.g. React Developer"
-						required
+						placeholder="e.g. 56 200 029"
 					/>
 				</Label>
-
-				<Label class="col-span-6 space-y-2 sm:col-span-3">
-					<span>Current Password</span>
-					<Input
-						name="current-password"
-						type="password"
-						class="border outline-none"
-						placeholder="••••••••"
-						required
+				<Label class="col-span-6 space-y-2 sm:col-span-6">
+					Employer
+					<Select
+						class="mt-2"
+						name="employer_id"
+						items={employer_items}
+						bind:value={selected_employer}
 					/>
-				</Label>
-				<Label class="col-span-6 space-y-2 sm:col-span-3">
-					<span>New Password</span>
-					<Input
-						name="news-password"
-						type="password"
-						class="border outline-none"
-						placeholder="••••••••"
-						required
-					/>
-				</Label>
-
-				<Label class="col-span-6 space-y-2">
-					<span>Biography</span>
-					<Textarea
-						id="biography"
-						rows={4}
-						class="bg-gray-50 outline-none dark:bg-gray-700"
-						placeholder="👨‍💻Full-stack web developer. Open-source contributor."
-					>
-						👨‍💻Full-stack web developer. Open-source contributor.
-					</Textarea>
 				</Label>
 			</div>
 		</form>
@@ -95,6 +92,6 @@
 
 	<!-- Modal footer -->
 	<div slot="footer">
-		<Button type="submit">{Object.keys(data).length ? 'Save all' : 'Add user'}</Button>
+		<Button type="submit">{Object.keys(data).length ? 'Save all' : 'Add Trainer'}</Button>
 	</div>
 </Modal>
