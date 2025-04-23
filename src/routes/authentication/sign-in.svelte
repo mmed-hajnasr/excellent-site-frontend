@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { Label, Input, Checkbox, A, Button, Card } from 'flowbite-svelte';
+	import { Label, Input, Button, Card } from 'flowbite-svelte';
 	import MetaTag from '../utils/MetaTag.svelte';
+	import { signIn } from '../utils/api';
 	let title = 'Sign in to platform';
 	let site = {
 		name: 'Flowbite',
@@ -22,9 +23,7 @@
 
 	const onSubmit = (e: Event) => {
 		e.preventDefault(); // Prevent default form submission
-		console.log('Email:', email);
-		console.log('Password:', password);
-		// TODO: authentication logic
+        signIn(email,password);
 	};
 
 	const path: string = '/authentication/sign-in';

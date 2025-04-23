@@ -63,6 +63,7 @@
 >
 	<!-- Modal body -->
 	<div class="space-y-6 p-0">
+		<!-- TODO: add post logic -->
 		<form action="#" use:init>
 			<!-- add the id of the participant to be edited -->
 			{#if data?.id}

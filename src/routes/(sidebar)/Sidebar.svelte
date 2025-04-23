@@ -12,20 +12,12 @@
 	import {
 		AngleDownOutline,
 		AngleUpOutline,
-		ClipboardListSolid,
 		CogOutline,
-		FileChartBarSolid,
-		GithubSolid,
-		LayersSolid,
-		LifeSaverSolid,
 		LockSolid,
-		WandMagicSparklesOutline,
 		ChartPieOutline,
 		UsersOutline,
 		UserEditOutline,
-		BookOutline,
-		RectangleListSolid,
-		TableColumnSolid
+		BookOutline
 	} from 'flowbite-svelte-icons';
 
 	export let drawerHidden: boolean = false;
@@ -41,14 +33,11 @@
 	let groupClass = 'pt-2 space-y-2';
 
 	$: mainSidebarUrl = $page.url.pathname;
-	let activeMainSidebar: string;
 
 	afterNavigate((navigation) => {
 		// this fixes https://github.com/themesberg/flowbite-svelte/issues/364
 		document.getElementById('svelte')?.scrollTo({ top: 0 });
 		closeDrawer();
-
-		activeMainSidebar = navigation.to?.url.pathname ?? '';
 	});
 
 	let posts = [

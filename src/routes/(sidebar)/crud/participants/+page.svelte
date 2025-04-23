@@ -76,15 +76,11 @@
 				>
 					<PlusOutline size="sm" />Add participant
 				</Button>
-				<!-- <Button size="sm" color="alternative" class="gap-2 px-3"> -->
-				<!-- 	<DownloadSolid size="md" class="-ml-1" />Export -->
-				<!-- </Button> -->
 			</div>
 		</Toolbar>
 	</div>
 	<Table>
 		<TableHead class="border-y border-gray-200 bg-gray-100 dark:border-gray-700">
-			<TableHeadCell class="w-4 p-4"></TableHeadCell>
 			{#each ['Name', 'Phone Number', 'Profile', 'Structure', 'Actions'] as title}
 				<TableHeadCell class="p-4 font-medium">{title}</TableHeadCell>
 			{/each}
@@ -92,7 +88,6 @@
 		<TableBody>
 			{#each Participants as participant}
 				<TableBodyRow class="text-base">
-					<TableBodyCell class="w-4 p-4"></TableBodyCell>
 					<TableBodyCell class="mr-12 flex items-center space-x-6 whitespace-nowrap p-4">
 						<div class="text-sm font-normal text-gray-500 dark:text-gray-400">
 							<div class="text-sm font-normal text-gray-500 dark:text-gray-400">

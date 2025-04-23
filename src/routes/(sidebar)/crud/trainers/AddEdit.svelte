@@ -45,6 +45,7 @@
 >
 	<!-- Modal body -->
 	<div class="space-y-6 p-0">
+		<!-- TODO: send post logic -->
 		<form action="#" use:init>
 			<!-- add the id of the trainer to be edited -->
 			{#if data?.id}

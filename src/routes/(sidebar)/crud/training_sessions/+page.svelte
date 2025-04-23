@@ -3,15 +3,46 @@
 	import { Input, Table, TableBody, TableBodyCell, TableBodyRow, TableHead } from 'flowbite-svelte';
 	import { TableHeadCell, Toolbar } from 'flowbite-svelte';
 	import { EditOutline, SearchOutline, PlusOutline, TrashBinSolid } from 'flowbite-svelte-icons';
-	import AddEdit from './User.svelte';
+	import AddEdit from './AddEdit.svelte';
 	import Delete from './Delete.svelte';
 	import MetaTag from '../../../utils/MetaTag.svelte';
+	import { onMount } from 'svelte';
+	import { authorizedFetch } from '../../../utils/api';
+
+	// let TrainingSessions: any[] = [];
 	import TrainingSessions from '../../../data/training_sessions.json';
 
-	let openUser: boolean = false; // modal control
+	// onMount(async () => {
+	// 	try {
+	// 		const res = await authorizedFetch('/training_sessions');
+	//
+	// 		const body = await res.json();
+	// 		TrainingSessions = body.training_sessions;
+	// 	} catch (err) {
+	// 		console.error(err);
+	// 	}
+	// });
+
+	let searchQuery: string = '';
+	async function search() {
+		let request = !searchQuery.trim()
+			? '/training_sessions'
+			: '/training_sessions?search=' + searchQuery.trim();
+		console.log(request);
+		// 	try {
+		// 		const res = await authorizedFetch('/training_sessions');
+		//
+		// 		const body = await res.json();
+		// 		TrainingSessions = body.training_sessions;
+		// 	} catch (err) {
+		// 		console.error(err);
+		// 	}
+	}
+
+	let openAddEdit: boolean = false; // modal control
 	let openDelete: boolean = false; // modal control
 
-	let current_user: any = {};
+	let current_session: any = {};
 	const path: string = '/crud/training_sessions';
 	const title: string = 'Excellent training - Training Sessions';
 	const subtitle: string = 'Training Sessions';
@@ -27,12 +58,12 @@
 
 		<Toolbar embedded class="w-full py-4 text-gray-500  dark:text-gray-400">
 			<div class="flex items-center space-x-2">
-				<Input placeholder="Search for Training session" class="me-4 w-80 border xl:w-96" />
-				<Button
-					size="sm"
-					class="gap-2 px-3"
-					on:click={() => ((current_user = {}), (openUser = true))}
-				>
+				<Input
+					placeholder="Search for Training session"
+					class="me-4 w-80 border xl:w-96"
+					bind:value={searchQuery}
+				/>
+				<Button size="sm" class="gap-2 px-3" on:click={search}>
 					<SearchOutline size="sm" /> Search
 				</Button>
 			</div>
@@ -41,7 +72,7 @@
 				<Button
 					size="sm"
 					class="gap-2 whitespace-nowrap px-3"
-					on:click={() => ((current_user = {}), (openUser = true))}
+					on:click={() => ((current_session = {}), (openAddEdit = true))}
 				>
 					<PlusOutline size="sm" />Add training session
 				</Button>
@@ -50,49 +81,48 @@
 	</div>
 	<Table>
 		<TableHead class="border-y border-gray-200 bg-gray-100 dark:border-gray-700">
-			<TableHeadCell class="w-4 p-4"></TableHeadCell>
-			{#each ['Title', 'Year', 'Duration', 'Budget', 'Trainers', 'Participants', 'Actions'] as title}
+			{#each ['Title', 'Duration', 'Budget', 'Trainers', 'Participants', 'Actions'] as title}
 				<TableHeadCell class="p-4 font-medium">{title}</TableHeadCell>
 			{/each}
 		</TableHead>
 		<TableBody>
 			{#each TrainingSessions as training_session}
 				<TableBodyRow class="text-base">
-					<TableBodyCell class="w-4 p-4"></TableBodyCell>
-					<TableBodyCell class="mr-12 flex items-center space-x-6 whitespace-nowrap p-4">
+					<TableBodyCell class="mr-12 flex w-36 items-center space-x-6 whitespace-nowrap p-4">
 						<div class="text-sm font-normal text-gray-500 dark:text-gray-400">
-							<div class="text-base font-semibold text-gray-900 dark:text-white">
-								{training_session.title}
-							</div>
 							<div class="text-sm font-normal text-gray-500 dark:text-gray-400">
-								{training_session.domain}
+								<div class="text-base font-semibold text-gray-900 dark:text-white">
+									{training_session.title}
+								</div>
+								<div class="text-sm font-normal text-gray-500 dark:text-gray-400">
+									{training_session.domain} - {training_session.year}
+								</div>
 							</div>
 						</div>
 					</TableBodyCell>
-					<TableBodyCell class="p-4">{training_session.year}</TableBodyCell>
 					<TableBodyCell class="p-4">{training_session.duration} days</TableBodyCell>
 					<TableBodyCell class="p-4">{training_session.budget}$</TableBodyCell>
 					<TableBodyCell class="p-4">
-						{training_session.nb_trainers}
+						{training_session.nb_trainers} trainers
 					</TableBodyCell>
 					<TableBodyCell class="p-4">
-						{training_session.nb_participants}
+						{training_session.nb_participants} participants
 					</TableBodyCell>
 					<TableBodyCell class="space-x-2 p-4">
 						<Button
 							size="sm"
 							class="gap-2 px-3"
-							on:click={() => ((current_user = user), (openUser = true))}
+							on:click={() => ((current_session = training_session), (openAddEdit = true))}
 						>
-							<EditOutline size="sm" /> Edit
+							<EditOutline size="sm" /> Edit session
 						</Button>
 						<Button
 							color="red"
 							size="sm"
 							class="gap-2 px-3"
-							on:click={() => ((current_user = user), (openDelete = true))}
+							on:click={() => ((current_session = training_session), (openDelete = true))}
 						>
-							<TrashBinSolid size="sm" /> Delete
+							<TrashBinSolid size="sm" /> Delete session
 						</Button>
 					</TableBodyCell>
 				</TableBodyRow>
@@ -103,5 +133,5 @@
 
 <!-- Modals -->
 
-<AddEdit bind:open={openUser} data={current_user} />
-<Delete bind:open={openDelete} />
+<AddEdit bind:open={openAddEdit} data={current_session} />
+<Delete bind:open={openDelete} session_id={current_session.id} />

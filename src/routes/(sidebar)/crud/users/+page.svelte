@@ -1,25 +1,9 @@
 <script lang="ts">
-	import {
-		Avatar,
-		Breadcrumb,
-		BreadcrumbItem,
-		Button,
-		Checkbox,
-		Heading,
-		Indicator
-	} from 'flowbite-svelte';
+	import { Button, Heading } from 'flowbite-svelte';
 	import { Input, Table, TableBody, TableBodyCell, TableBodyRow, TableHead } from 'flowbite-svelte';
-	import { TableHeadCell, Toolbar, ToolbarButton, ToolbarGroup } from 'flowbite-svelte';
-	import { CogSolid, DotsVerticalOutline, DownloadSolid } from 'flowbite-svelte-icons';
-	import {
-		EditOutline,
-		SearchOutline,
-		ExclamationCircleSolid,
-		PlusOutline,
-		TrashBinSolid
-	} from 'flowbite-svelte-icons';
+	import { TableHeadCell, Toolbar } from 'flowbite-svelte';
+	import { EditOutline, SearchOutline, PlusOutline, TrashBinSolid } from 'flowbite-svelte-icons';
 	import Users from '../../../data/participants.json';
-	import { imagesPath } from '../../../utils/variables';
 
 	import User from './User.svelte';
 	import Delete from './Delete.svelte';
@@ -48,7 +32,7 @@
 				<Button
 					size="sm"
 					class="gap-2 px-3"
-					on:click={() => ((current_user = user), (openUser = true))}
+					on:click={() => ((current_user = {}), (openUser = true))}
 				>
 					<SearchOutline size="sm" /> Search
 				</Button>
