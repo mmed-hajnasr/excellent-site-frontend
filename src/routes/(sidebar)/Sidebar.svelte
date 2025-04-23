@@ -55,14 +55,6 @@
 				Domains: '/crud/domains',
 				Employers: '/crud/employers'
 			}
-		},
-		// HACK: remove this for production.
-		{
-			name: 'Authenication',
-			icon: LockSolid,
-			children: {
-				'Sign in': '/authentication/sign-in'
-			}
 		}
 	];
 

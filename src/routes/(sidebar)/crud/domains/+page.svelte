@@ -1,36 +1,20 @@
 <script lang="ts">
-	import {
-		Avatar,
-		Breadcrumb,
-		BreadcrumbItem,
-		Button,
-		Checkbox,
-		Heading,
-		Indicator
-	} from 'flowbite-svelte';
+	import { Button, Heading } from 'flowbite-svelte';
 	import { Input, Table, TableBody, TableBodyCell, TableBodyRow, TableHead } from 'flowbite-svelte';
-	import { TableHeadCell, Toolbar, ToolbarButton, ToolbarGroup } from 'flowbite-svelte';
-	import { CogSolid, DotsVerticalOutline, DownloadSolid } from 'flowbite-svelte-icons';
-	import {
-		EditOutline,
-		SearchOutline,
-		ExclamationCircleSolid,
-		PlusOutline,
-		TrashBinSolid
-	} from 'flowbite-svelte-icons';
-	import Domains from '../../../data/participants.json';
-	import { imagesPath } from '../../../utils/variables';
+	import { TableHeadCell, Toolbar } from 'flowbite-svelte';
+	import { EditOutline, SearchOutline, PlusOutline, TrashBinSolid } from 'flowbite-svelte-icons';
+	import Domains from '../../../data/domains.json';
 
-	import User from './User.svelte';
+	import AddEdit from './AddEdit.svelte';
 	import Delete from './Delete.svelte';
 	import MetaTag from '../../../utils/MetaTag.svelte';
 
-	let openUser: boolean = false; // modal control
+	let openAddEdit: boolean = false; // modal control
 	let openDelete: boolean = false; // modal control
 
-	let current_user: any = {};
+	let current_strcuture: any = {};
 	const path: string = '/crud/domains';
-	const title: string = 'Excellent training - Domains';
+	const title: string = 'Excellent training - domains';
 	const subtitle: string = 'Domains';
 </script>
 
@@ -48,7 +32,7 @@
 				<Button
 					size="sm"
 					class="gap-2 px-3"
-					on:click={() => ((current_user = user), (openUser = true))}
+					on:click={() => ((current_strcuture = {}), (openAddEdit = true))}
 				>
 					<SearchOutline size="sm" /> Search
 				</Button>
@@ -58,31 +42,28 @@
 				<Button
 					size="sm"
 					class="gap-2 whitespace-nowrap px-3"
-					on:click={() => ((current_user = {}), (openUser = true))}
+					on:click={() => ((current_strcuture = {}), (openAddEdit = true))}
 				>
-					<PlusOutline size="sm" />Add Domain
+					<PlusOutline size="sm" />Add domain
 				</Button>
-				<!-- <Button size="sm" color="alternative" class="gap-2 px-3"> -->
-				<!-- 	<DownloadSolid size="md" class="-ml-1" />Export -->
-				<!-- </Button> -->
 			</div>
 		</Toolbar>
 	</div>
 	<Table>
 		<TableHead class="border-y border-gray-200 bg-gray-100 dark:border-gray-700">
-			{#each ['Name', 'Role', 'Actions'] as title}
+			{#each ['Name', 'Actions'] as title}
 				<TableHeadCell class="p-4 font-medium">{title}</TableHeadCell>
 			{/each}
 		</TableHead>
 		<TableBody>
 			{#each Domains as domain}
 				<TableBodyRow class="text-base">
-					<TableBodyCell class="p-4">{domain.profile}</TableBodyCell>
+					<TableBodyCell class="p-4">{domain.name}</TableBodyCell>
 					<TableBodyCell class="space-x-2 p-4">
 						<Button
 							size="sm"
 							class="gap-2 px-3"
-							on:click={() => ((current_user = user), (openUser = true))}
+							on:click={() => ((current_strcuture = domain), (openAddEdit = true))}
 						>
 							<EditOutline size="sm" /> Edit domain
 						</Button>
@@ -90,7 +71,7 @@
 							color="red"
 							size="sm"
 							class="gap-2 px-3"
-							on:click={() => ((current_user = user), (openDelete = true))}
+							on:click={() => ((current_strcuture = domain), (openDelete = true))}
 						>
 							<TrashBinSolid size="sm" /> Delete domain
 						</Button>
@@ -103,5 +84,5 @@
 
 <!-- Modals -->
 
-<User bind:open={openUser} data={current_user} />
-<Delete bind:open={openDelete} />
+<AddEdit bind:open={openAddEdit} data={current_strcuture} />
+<Delete bind:open={openDelete} domain_id={current_strcuture.id}/>

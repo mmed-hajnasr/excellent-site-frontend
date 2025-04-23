@@ -3,9 +3,9 @@
 	import { Input, Table, TableBody, TableBodyCell, TableBodyRow, TableHead } from 'flowbite-svelte';
 	import { TableHeadCell, Toolbar } from 'flowbite-svelte';
 	import { EditOutline, SearchOutline, PlusOutline, TrashBinSolid } from 'flowbite-svelte-icons';
-	import Users from '../../../data/participants.json';
+	import Users from '../../../data/users.json';
 
-	import User from './User.svelte';
+	import AddEdit from './AddEdit.svelte';
 	import Delete from './Delete.svelte';
 	import MetaTag from '../../../utils/MetaTag.svelte';
 
@@ -46,9 +46,6 @@
 				>
 					<PlusOutline size="sm" />Add user
 				</Button>
-				<!-- <Button size="sm" color="alternative" class="gap-2 px-3"> -->
-				<!-- 	<DownloadSolid size="md" class="-ml-1" />Export -->
-				<!-- </Button> -->
 			</div>
 		</Toolbar>
 	</div>
@@ -61,8 +58,8 @@
 		<TableBody>
 			{#each Users as user}
 				<TableBodyRow class="text-base">
-					<TableBodyCell class="p-4">{user.first_name}</TableBodyCell>
-					<TableBodyCell class="p-4">{user.profile}</TableBodyCell>
+					<TableBodyCell class="p-4">{user.username}</TableBodyCell>
+					<TableBodyCell class="p-4">{user.role}</TableBodyCell>
 					<TableBodyCell class="space-x-2 p-4">
 						<Button
 							size="sm"
@@ -88,5 +85,5 @@
 
 <!-- Modals -->
 
-<User bind:open={openUser} data={current_user} />
-<Delete bind:open={openDelete} />
+<AddEdit bind:open={openUser} data={current_user} />
+<Delete bind:open={openDelete} user_id={current_user.id} />
