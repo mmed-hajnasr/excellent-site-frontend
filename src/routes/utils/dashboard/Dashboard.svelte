@@ -1,10 +1,7 @@
 <script lang="ts">
     
 	import ChartWidget from '../widgets/ChartWidget.svelte';
-	import { Card, Chart } from 'flowbite-svelte';
 	import type { PageData } from '../../(sidebar)/$types';
-	import users from '../graphs/users';
-	import DarkChart from '../widgets/DarkChart.svelte';
 	import { onMount } from 'svelte';
 	import getChartOptions from '../../(sidebar)/dashboard/chart_options';
 	import Pie from './Pie.svelte';

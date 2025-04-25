@@ -2,8 +2,6 @@
 	import Change from '../dashboard/Change.svelte';
 	import type { ApexOptions } from 'apexcharts';
 	import { Card, Chart, Heading } from 'flowbite-svelte';
-	import LastRange from './LastRange.svelte';
-	import More from './More.svelte';
 
 	export let title: string = '';
 	export let subtitle: string = '';

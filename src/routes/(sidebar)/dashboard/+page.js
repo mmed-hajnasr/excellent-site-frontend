@@ -1,16 +1,15 @@
 /** @type {import('./$types').PageLoad} */
 export function load({ params }) {
-	return {	
+	return {
 		series: [
+			// TODO: get budget over the last 5 years.
 			{
-				name: 'Revenue',
-				data: [6356, 6218, 6156, 6526, 6356, 6256, 6056],
-				color: '#EF562F'
+				name: 'domain name 1',
+				data: [364, 311, 280, 199, 378]
 			},
 			{
-				name: 'Revenue (previous period)',
-				data: [6556, 6725, 6424, 6356, 6586, 6756, 6616],
-				color: '#FDBA8C'
+				name: 'domain name 2',
+				data: [400, 374, 280, 311, 199]
 			}
 		]
 	};
