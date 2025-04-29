@@ -24,7 +24,7 @@
 			Profiles = body2.profiles;
 			const res_structure = await authorizedFetch('/structures');
 			const body3 = await res_structure.json();
-			Structures = body3.profiles;
+			Structures = body3.structures;
             for (let i = 0; i < Participants.length; i++) {
                 const profile = Profiles.find((p) => p.id === Participants[i].profile_id);
                 if (profile) {
