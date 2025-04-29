@@ -29,7 +29,7 @@
 
 <div class="mt-px space-y-4">
 	<div class="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3">
-		<ChartWidget {chartOptions} title="$45,385" subtitle="Sales this week" />
+		<ChartWidget {chartOptions} title="Domain budget by year" subtitle="all sessions" />
 		<Pie {dark} />
 	</div>
 </div>

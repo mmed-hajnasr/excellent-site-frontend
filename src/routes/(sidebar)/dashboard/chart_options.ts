@@ -9,7 +9,7 @@ interface MainChartColors {
 
 export default function getChartOptions(dark: boolean): ApexOptions {
   let mainChartColors: MainChartColors;
-    
+
   if (dark) {
     mainChartColors = {
       borderColor: '#374151',
@@ -75,7 +75,7 @@ export default function getChartOptions(dark: boolean): ApexOptions {
       }
     },
     xaxis: {
-      categories: ['01 Feb', '02 Feb', '03 Feb', '04 Feb', '05 Feb', '06 Feb', '07 Feb'],
+      categories: ['2020', '2021', '2022', '2023', '2024'],
       labels: {
         style: {
           colors: [mainChartColors.labelColor],
@@ -106,7 +106,7 @@ export default function getChartOptions(dark: boolean): ApexOptions {
           fontSize: '14px',
           fontWeight: 500
         },
-        formatter: function (value: number): string {
+        formatter: function(value: number): string {
           return '$' + value;
         }
       }

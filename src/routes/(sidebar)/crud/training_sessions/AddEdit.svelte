@@ -77,7 +77,7 @@
 	<div class="space-y-6 p-0">
 		<!-- TODO: send post logic -->
 		<form action="#" use:init>
-			<!-- add the id of the trainer to be edited -->
+			<!-- add the id of the element to be edited -->
 			{#if data?.id}
 				<input type="hidden" name="id" value={data.id} />
 			{/if}
@@ -155,6 +155,6 @@
 
 	<!-- Modal footer -->
 	<div slot="footer">
-		<Button type="submit">{Object.keys(data).length ? 'Save all' : 'Add Trainer'}</Button>
+		<Button type="submit">{Object.keys(data).length ? 'Save all' : 'Add Training session'}</Button>
 	</div>
 </Modal>

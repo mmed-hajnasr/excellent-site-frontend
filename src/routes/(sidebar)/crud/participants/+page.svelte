@@ -9,19 +9,36 @@
 	import MetaTag from '../../../utils/MetaTag.svelte';
 	import { authorizedFetch } from '../../../utils/api';
 
-	// let Participants: any[] = [];
-	import Participants from '../../../data/participants.json';
+	let Participants: any[] = [];
+	let Profiles: any[] = [];
+	let Structures: any[] = [];
+	// import Participants from '../../../data/participants.json';
 
-	// onMount(async () => {
-	// 	try {
-	// 		const res = await authorizedFetch('/participants');
-	//
-	// 		const body = await res.json();
-	// 		Participants = body.participants;
-	// 	} catch (err) {
-	// 		console.error(err);
-	// 	}
-	// });
+	onMount(async () => {
+		try {
+			const res_participant = await authorizedFetch('/participants');
+			const body1 = await res_participant.json();
+			Participants = body1.participants;
+			const res_profile = await authorizedFetch('/profiles');
+			const body2 = await res_profile.json();
+			Profiles = body2.profiles;
+			const res_structure = await authorizedFetch('/structures');
+			const body3 = await res_structure.json();
+			Structures = body3.profiles;
+            for (let i = 0; i < Participants.length; i++) {
+                const profile = Profiles.find((p) => p.id === Participants[i].profile_id);
+                if (profile) {
+                    Participants[i].profile = profile.name;
+                }
+                const structure = Structures.find((s) => s.id === Participants[i].structure_id);
+                if (structure) {
+                    Participants[i].structure = structure.name;
+                }
+            }
+		} catch (err) {
+			console.error(err);
+		}
+	});
 
 	let searchQuery: string = '';
 	async function search() {
@@ -29,14 +46,14 @@
 			? '/participants'
 			: '/participants?search=' + searchQuery.trim();
 		// console.log(request);
-		// try {
-		// const res = await authorizedFetch(request);
-		//
-		// 	const body = await res.json();
-		// 	Participants = body.participants;
-		// } catch (err) {
-		// 	console.error(err);
-		// }
+		try {
+		const res = await authorizedFetch(request);
+
+			const body = await res.json();
+			Participants = body.participants;
+		} catch (err) {
+			console.error(err);
+		}
 	}
 
 	let openAddEdit: boolean = false; // modal control

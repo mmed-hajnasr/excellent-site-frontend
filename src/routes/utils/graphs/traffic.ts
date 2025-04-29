@@ -20,7 +20,7 @@ const getTrafficChannelsChartConfig = (dark: boolean): ApexOptions => {
   return {
     //TODO: get inputs for pie number of trainers by employer.
     series: [70, 5, 25],
-    labels: ['intern', 'Microsoft', 'Apple'],
+    labels: ['interne', 'Microsoft', 'Apple'],
     chart: {
       type: 'donut',
       height: 400,
