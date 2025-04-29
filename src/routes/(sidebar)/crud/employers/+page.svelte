@@ -3,11 +3,24 @@
 	import { Input, Table, TableBody, TableBodyCell, TableBodyRow, TableHead } from 'flowbite-svelte';
 	import { TableHeadCell, Toolbar } from 'flowbite-svelte';
 	import { EditOutline, SearchOutline, PlusOutline, TrashBinSolid } from 'flowbite-svelte-icons';
-	import Employers from '../../../data/employers.json';
-
 	import AddEdit from './AddEdit.svelte';
 	import Delete from './Delete.svelte';
 	import MetaTag from '../../../utils/MetaTag.svelte';
+	import { onMount } from 'svelte';
+	import { authorizedFetch } from '../../../utils/api';
+
+	// import Employers from '../../../data/employers.json';
+	let Employers: any[] = [];
+
+	onMount(async () => {
+		try {
+			const res = await authorizedFetch('/employers');
+			const body = await res.json();
+			Employers = body.employers;
+		} catch (err) {
+			console.error(err);
+		}
+	});
 
 	let openAddEdit: boolean = false; // modal control
 	let openDelete: boolean = false; // modal control

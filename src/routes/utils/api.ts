@@ -21,16 +21,16 @@ export async function signIn(email: string, password: string) {
     }
 
     const data: AuthResponse = await response.json();
-    
+
     // Store authentication data
     localStorage.setItem('token', data.token);
     localStorage.setItem('username', data.username);
     localStorage.setItem('role', data.role);
-    
+
     // Redirect to appropriate page based on role
     const redirectPath = data.role === 'admin' ? '/admin' : '/dashboard';
     await goto(redirectPath);
-    
+
     return data;
   } catch (error) {
     console.error('Sign in failed:', error);
@@ -43,14 +43,14 @@ export async function signOut() {
   localStorage.removeItem('token');
   localStorage.removeItem('username');
   localStorage.removeItem('role');
-  
+
   // Redirect to sign-in page
   await goto('/authentication/sign-in');
 }
 
 export async function authorizedFetch(endpoint: string, options: RequestInit = {}) {
   const token = localStorage.getItem('token');
-  
+
   if (!token) {
     await goto('/authentication/sign-in');
     throw new Error('No authentication token found');
@@ -86,4 +86,30 @@ export function getCurrentUser() {
     role: localStorage.getItem('role'),
     isAuthenticated: !!localStorage.getItem('token')
   };
+
+}
+export async function handleSubmit(event: Event, endpoint: string) {
+  event.preventDefault();
+
+  const form = event.target as HTMLFormElement;
+  const formData = new FormData(form);
+
+  // Convert FormData to a plain object
+  const payload = Object.fromEntries(formData.entries());
+
+  try {
+    endpoint = payload?.id ? `/${endpoint}/${payload.id}` : '/${endpoint}';
+    const method = payload?.id ? 'PUT' : 'POST';
+
+    const response = await authorizedFetch(endpoint, {
+      method,
+      body: JSON.stringify(payload)
+    });
+
+    // Handle successful response
+    const result = await response.json();
+    console.log('Success:', result);
+  } catch (error) {
+    console.error('Error:', error);
+  }
 }

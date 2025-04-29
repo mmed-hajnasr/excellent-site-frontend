@@ -1,17 +1,30 @@
 <script lang="ts">
 	import { Button, Select, Input, Label, Modal } from 'flowbite-svelte';
 	export let open: boolean = false; // modal control
+	import { onMount } from 'svelte';
+	import { authorizedFetch } from '../../../utils/api';
 
-	// TODO: get all structures api:
-	import Profiles from '../../../data/profile.json';
+	// import Profiles from '../../../data/profile.json';
+	let Profiles: any[] = [];
+	let Structures: any[] = [];
+
+	onMount(async () => {
+		try {
+			const res = await authorizedFetch('/profiles');
+			const body = await res.json();
+			Profiles = body.profiles;
+			const res1 = await authorizedFetch('/structures');
+			const body1 = await res1.json();
+			Structures = body1.structures;
+		} catch (err) {
+			console.error(err);
+		}
+	});
 
 	let profile_items = Profiles.map((profile) => ({
 		value: profile.id,
 		name: profile.name
 	}));
-
-	// TODO: get all structures api:
-	import Structures from '../../../data/structures.json';
 
 	let structure_items = Structures.map((structure) => ({
 		value: structure.id,
@@ -63,7 +76,6 @@
 >
 	<!-- Modal body -->
 	<div class="space-y-6 p-0">
-		<!-- TODO: add post logic -->
 		<form action="#" use:init>
 			<!-- add the id of the participant to be edited -->
 			{#if data?.id}
