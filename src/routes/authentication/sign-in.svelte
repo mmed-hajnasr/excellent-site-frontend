@@ -23,6 +23,7 @@
 
 	const onSubmit = (e: Event) => {
 		e.preventDefault(); // Prevent default form submission
+        console.log(email,password);
         signIn(email,password);
 	};
 

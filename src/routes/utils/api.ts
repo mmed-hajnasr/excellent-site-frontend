@@ -6,14 +6,14 @@ interface AuthResponse {
   role: string;
 }
 
-export async function signIn(email: string, password: string) {
+export async function signIn(username: string, password: string) {
   try {
-    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/sign-in`, {
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ username, password }),
     });
 
     if (!response.ok) {
@@ -109,7 +109,9 @@ export async function handleSubmit(event: Event, endpoint: string) {
     // Handle successful response
     const result = await response.json();
     console.log('Success:', result);
+    return result;
   } catch (error) {
     console.error('Error:', error);
+    throw error;
   }
 }

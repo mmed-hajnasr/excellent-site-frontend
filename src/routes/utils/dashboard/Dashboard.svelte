@@ -6,7 +6,7 @@
 	import getChartOptions from '../../(sidebar)/dashboard/chart_options';
 	import Pie from './Pie.svelte';
 
-	export let data: PageData;
+	export let data;
 
 	let chartOptions = getChartOptions(false);
 	chartOptions.series = data.series;
