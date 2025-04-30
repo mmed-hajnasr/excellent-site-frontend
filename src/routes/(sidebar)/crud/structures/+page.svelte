@@ -9,8 +9,6 @@
 	import { onMount } from 'svelte';
 	import { authorizedFetch } from '../../../utils/api';
 
-
-	// import Structures from '../../../data/structures.json';
 	let Structures: any[] = [];
 
 	onMount(async () => {
@@ -25,6 +23,19 @@
 
 	let openAddEdit: boolean = false; // modal control
 	let openDelete: boolean = false; // modal control
+
+	let searchQuery: string = '';
+	async function search() {
+		let request = !searchQuery.trim() ? '/structures' : '/structures?search=' + searchQuery.trim();
+		try {
+			const res = await authorizedFetch(request);
+
+			const body = await res.json();
+			Structures = body.structures;
+		} catch (err) {
+			console.error(err);
+		}
+	}
 
 	let current_strcuture: any = {};
 	const path: string = '/crud/structures';
@@ -42,12 +53,12 @@
 
 		<Toolbar embedded class="w-full py-4 text-gray-500  dark:text-gray-400">
 			<div class="flex items-center space-x-2">
-				<Input placeholder="Search for structure" class="me-4 w-80 border xl:w-96" />
-				<Button
-					size="sm"
-					class="gap-2 px-3"
-					on:click={() => ((current_strcuture = {}), (openAddEdit = true))}
-				>
+				<Input
+					placeholder="Search for structure"
+					class="me-4 w-80 border xl:w-96"
+					bind:value={searchQuery}
+				/>
+				<Button size="sm" class="gap-2 px-3" on:click={search}>
 					<SearchOutline size="sm" /> Search
 				</Button>
 			</div>
@@ -99,4 +110,4 @@
 <!-- Modals -->
 
 <AddEdit bind:open={openAddEdit} data={current_strcuture} />
-<Delete bind:open={openDelete} structure_id={current_strcuture.id}/>
+<Delete bind:open={openDelete} structure_id={current_strcuture.id} />

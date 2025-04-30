@@ -7,9 +7,8 @@
 	import Delete from './Delete.svelte';
 	import MetaTag from '../../../utils/MetaTag.svelte';
 	import { onMount } from 'svelte';
-	import { authorizedFetch } from '../../../utils/api';
+	import { authorizedFetch, role_name } from '../../../utils/api';
 
-	// import Users from '../../../data/users.json';
 	let Users: any[] = [];
 
 	onMount(async () => {
@@ -21,6 +20,22 @@
 			console.error(err);
 		}
 	});
+
+	let searchQuery: string = '';
+	async function search() {
+		let request = !searchQuery.trim() ? '/users' : '/users?search=' + searchQuery.trim();
+		try {
+			const res = await authorizedFetch(request);
+			const body = await res.json();
+			Users = body.users;
+
+			for (let i = 0; i < Users.length; i++) {
+				Users[i].role = role_name[Users[i].role_id];
+			}
+		} catch (err) {
+			console.error(err);
+		}
+	}
 
 	let openUser: boolean = false; // modal control
 	let openDelete: boolean = false; // modal control
@@ -41,12 +56,12 @@
 
 		<Toolbar embedded class="w-full py-4 text-gray-500  dark:text-gray-400">
 			<div class="flex items-center space-x-2">
-				<Input placeholder="Search for user" class="me-4 w-80 border xl:w-96" />
-				<Button
-					size="sm"
-					class="gap-2 px-3"
-					on:click={() => ((current_user = {}), (openUser = true))}
-				>
+				<Input
+					placeholder="Search for user"
+					class="me-4 w-80 border xl:w-96"
+					bind:value={searchQuery}
+				/>
+				<Button size="sm" class="gap-2 px-3" on:click={search}>
 					<SearchOutline size="sm" /> Search
 				</Button>
 			</div>

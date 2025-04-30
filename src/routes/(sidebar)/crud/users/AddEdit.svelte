@@ -32,6 +32,12 @@
 			}
 		}
 	}
+
+	async function onSubmit(event: Event) {
+		const result = await handleSubmit(event, 'users');
+		open = false;
+		return result;
+	}
 </script>
 
 <Modal
@@ -42,7 +48,7 @@
 >
 	<!-- Modal body -->
 	<div class="space-y-6 p-0">
-		<form action="#" use:init on:submit={handleSubmit}>
+		<form action="#" use:init on:submit|preventDefault={onSubmit}>
 			<div class="grid grid-cols-6 gap-6">
 				<Label class="col-span-6 space-y-2 sm:col-span-3">
 					<span>Username</span>

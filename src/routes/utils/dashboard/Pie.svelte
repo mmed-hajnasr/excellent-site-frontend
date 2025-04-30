@@ -1,7 +1,23 @@
 <script lang="ts">
 	import { Card, Chart } from 'flowbite-svelte';
 	import options from '../graphs/traffic';
+	import { onMount } from 'svelte';
+	import { authorizedFetch } from '../api';
 	export let dark: boolean = false;
+	let data = options(dark);
+	data.series = [1, 2, 3];
+	data.labels = ['interne', 'Microsoft', 'Apple'];
+	onMount(async () => {
+		// TODO: remove comments
+		// try {
+		// 	const pie_data = await authorizedFetch('/dashboard/employers');
+		// 	let res = await pie_data.json();
+		//           data.series = res.trainers_count;
+		//           data.labels = res.names;
+		// } catch (err) {
+		// 	console.error(err);
+		// }
+	});
 </script>
 
 <Card size="xl" class="h-fit">
@@ -15,5 +31,5 @@
 			</span>
 		</div>
 	</div>
-	<Chart options={options(dark)}></Chart>
+	<Chart options={data}></Chart>
 </Card>

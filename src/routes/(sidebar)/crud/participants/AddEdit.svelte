@@ -2,9 +2,8 @@
 	import { Button, Select, Input, Label, Modal } from 'flowbite-svelte';
 	export let open: boolean = false; // modal control
 	import { onMount } from 'svelte';
-	import { authorizedFetch } from '../../../utils/api';
+	import { authorizedFetch, handleSubmit } from '../../../utils/api';
 
-	// import Profiles from '../../../data/profile.json';
 	let Profiles: any[] = [];
 	let Structures: any[] = [];
 
@@ -66,6 +65,12 @@
 			}
 		}
 	}
+
+	async function onSubmit(event: Event) {
+		const result = await handleSubmit(event, 'participants');
+		open = false;
+		return result;
+	}
 </script>
 
 <Modal
@@ -76,7 +81,7 @@
 >
 	<!-- Modal body -->
 	<div class="space-y-6 p-0">
-		<form action="#" use:init>
+		<form action="#" use:init on:submit|preventDefault={onSubmit}>
 			<!-- add the id of the participant to be edited -->
 			{#if data?.id}
 				<input type="hidden" name="id" value={data.id} />

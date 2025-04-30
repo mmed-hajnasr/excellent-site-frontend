@@ -9,7 +9,6 @@
 	import { onMount } from 'svelte';
 	import { authorizedFetch } from '../../../utils/api';
 
-	// import Profiles from '../../../data/profile.json';
 	let Profiles: any[] = [];
 
 	onMount(async () => {
@@ -24,6 +23,19 @@
 
 	let openAddEdit: boolean = false; // modal control
 	let openDelete: boolean = false; // modal control
+
+	let searchQuery: string = '';
+	async function search() {
+		let request = !searchQuery.trim() ? '/profiles' : '/profiles?search=' + searchQuery.trim();
+		try {
+			const res = await authorizedFetch(request);
+
+			const body = await res.json();
+			Profiles = body.profiles;
+		} catch (err) {
+			console.error(err);
+		}
+	}
 
 	let current_profile: any = {};
 	const path: string = '/crud/profiles';
@@ -41,12 +53,12 @@
 
 		<Toolbar embedded class="w-full py-4 text-gray-500  dark:text-gray-400">
 			<div class="flex items-center space-x-2">
-				<Input placeholder="Search for profile" class="me-4 w-80 border xl:w-96" />
-				<Button
-					size="sm"
-					class="gap-2 px-3"
-					on:click={() => ((current_profile = {}), (openAddEdit = true))}
-				>
+				<Input
+					placeholder="Search for profile"
+					class="me-4 w-80 border xl:w-96"
+					bind:value={searchQuery}
+				/>
+				<Button size="sm" class="gap-2 px-3" on:click={search}>
 					<SearchOutline size="sm" /> Search
 				</Button>
 			</div>
@@ -98,4 +110,4 @@
 <!-- Modals -->
 
 <AddEdit bind:open={openAddEdit} data={current_profile} />
-<Delete bind:open={openDelete} profile_id={current_profile.id}/>
+<Delete bind:open={openDelete} profile_id={current_profile.id} />

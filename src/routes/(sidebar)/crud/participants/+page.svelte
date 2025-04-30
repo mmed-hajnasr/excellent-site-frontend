@@ -12,29 +12,31 @@
 	let Participants: any[] = [];
 	let Profiles: any[] = [];
 	let Structures: any[] = [];
-	// import Participants from '../../../data/participants.json';
 
 	onMount(async () => {
 		try {
 			const res_participant = await authorizedFetch('/participants');
 			const body1 = await res_participant.json();
 			Participants = body1.participants;
+
 			const res_profile = await authorizedFetch('/profiles');
 			const body2 = await res_profile.json();
 			Profiles = body2.profiles;
+
 			const res_structure = await authorizedFetch('/structures');
 			const body3 = await res_structure.json();
 			Structures = body3.structures;
-            for (let i = 0; i < Participants.length; i++) {
-                const profile = Profiles.find((p) => p.id === Participants[i].profile_id);
-                if (profile) {
-                    Participants[i].profile = profile.name;
-                }
-                const structure = Structures.find((s) => s.id === Participants[i].structure_id);
-                if (structure) {
-                    Participants[i].structure = structure.name;
-                }
-            }
+
+			for (let i = 0; i < Participants.length; i++) {
+				const profile = Profiles.find((p) => p.id === Participants[i].profile_id);
+				if (profile) {
+					Participants[i].profile = profile.name;
+				}
+				const structure = Structures.find((s) => s.id === Participants[i].structure_id);
+				if (structure) {
+					Participants[i].structure = structure.name;
+				}
+			}
 		} catch (err) {
 			console.error(err);
 		}
@@ -45,9 +47,8 @@
 		let request = !searchQuery.trim()
 			? '/participants'
 			: '/participants?search=' + searchQuery.trim();
-		// console.log(request);
 		try {
-		const res = await authorizedFetch(request);
+			const res = await authorizedFetch(request);
 
 			const body = await res.json();
 			Participants = body.participants;
@@ -56,8 +57,8 @@
 		}
 	}
 
-	let openAddEdit: boolean = false; // modal control
-	let openDelete: boolean = false; // modal control
+	let openAddEdit: boolean = false;
+	let openDelete: boolean = false;
 
 	let current_participant: any = {};
 	const path: string = '/crud/participants';

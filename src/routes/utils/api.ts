@@ -1,10 +1,10 @@
 import { goto } from "$app/navigation";
 
-interface AuthResponse {
-  token: string;
-  username: string;
-  role: string;
-}
+export const role_name: Record<number, string> = {
+  1: 'Responsible',
+  2: 'User',
+  3: 'Admin',
+};
 
 export async function signIn(username: string, password: string) {
   try {
@@ -20,12 +20,12 @@ export async function signIn(username: string, password: string) {
       throw new Error(`HTTP ${response.status}`);
     }
 
-    const data: AuthResponse = await response.json();
+    const data = await response.json();
 
     // Store authentication data
     localStorage.setItem('token', data.token);
-    localStorage.setItem('username', data.username);
-    localStorage.setItem('role', data.role);
+    localStorage.setItem('username', data.user.username);
+    localStorage.setItem('role', data.user.role_id);
 
     // Redirect to appropriate page based on role
     const redirectPath = data.role === 'admin' ? '/admin' : '/dashboard';
@@ -86,15 +86,14 @@ export function getCurrentUser() {
     role: localStorage.getItem('role'),
     isAuthenticated: !!localStorage.getItem('token')
   };
-
 }
+
 export async function handleSubmit(event: Event, endpoint: string) {
   event.preventDefault();
 
   const form = event.target as HTMLFormElement;
   const formData = new FormData(form);
 
-  // Convert FormData to a plain object
   const payload = Object.fromEntries(formData.entries());
 
   try {

@@ -9,32 +9,41 @@
 	import { onMount } from 'svelte';
 	import { authorizedFetch } from '../../../utils/api';
 
-	// let Trainers: any[] = [];
-	import Trainers from '../../../data/trainers.json';
+	let Trainers: any[] = [];
+	let Employers: any[] = [];
 
-	// onMount(async () => {
-	// 	try {
-	// 		const res = await authorizedFetch('/participants');
-	//
-	// 		const body = await res.json();
-	// 		Trainers = body.trainers;
-	// 	} catch (err) {
-	// 		console.error(err);
-	// 	}
-	// });
+	onMount(async () => {
+		try {
+			const res = await authorizedFetch('/trainers');
+			const body = await res.json();
+			Trainers = body.trainers;
+
+			const res1 = await authorizedFetch('/employers');
+			const body1 = await res1.json();
+			Employers = body1.employers;
+
+			for (let i = 0; i < Trainers.length; i++) {
+				const employer = Employers.find((e) => e.id === Trainers[i].employer_id);
+				if (employer) {
+					Trainers[i].employer = employer.name;
+				}
+			}
+		} catch (err) {
+			console.error(err);
+		}
+	});
 
 	let searchQuery: string = '';
 	async function search() {
 		let request = !searchQuery.trim() ? '/trainers' : '/trainers?search=' + searchQuery.trim();
-		console.log(request);
-		// try {
-		// const res = await authorizedFetch(request);
-		//
-		// 	const body = await res.json();
-		// 	Participants = body.participants;
-		// } catch (err) {
-		// 	console.error(err);
-		// }
+		try {
+			const res = await authorizedFetch(request);
+
+			const body = await res.json();
+			Trainers = body.trainers;
+		} catch (err) {
+			console.error(err);
+		}
 	}
 
 	let openAddEdit: boolean = false; // modal control
@@ -103,7 +112,7 @@
 						</div>
 					</TableBodyCell>
 					<TableBodyCell class="p-4">{trainer.phone_number}</TableBodyCell>
-					<TableBodyCell class="p-4">{trainer.Employer}</TableBodyCell>
+					<TableBodyCell class="p-4">{trainer.employer}</TableBodyCell>
 					<TableBodyCell class="space-x-2 p-4">
 						<Button
 							size="sm"

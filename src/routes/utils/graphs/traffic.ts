@@ -18,7 +18,6 @@ const getTrafficChannelsChartConfig = (dark: boolean): ApexOptions => {
   }
 
   return {
-    //TODO: get inputs for pie number of trainers by employer.
     series: [70, 5, 25],
     labels: ['interne', 'Microsoft', 'Apple'],
     chart: {
@@ -61,13 +60,13 @@ const getTrafficChannelsChartConfig = (dark: boolean): ApexOptions => {
       },
       x: {
         show: true,
-        formatter: function (_: any, { seriesIndex, w }: { seriesIndex: number; w: any }) {
+        formatter: function(_: any, { seriesIndex, w }: { seriesIndex: number; w: any }) {
           const label = w.config.labels[seriesIndex];
           return label;
         }
       },
       y: {
-        formatter: function (value: number) {
+        formatter: function(value: number) {
           return value + '%';
         }
       }

@@ -13,12 +13,12 @@
 		AngleDownOutline,
 		AngleUpOutline,
 		CogOutline,
-		LockSolid,
 		ChartPieOutline,
 		UsersOutline,
 		UserEditOutline,
 		BookOutline
 	} from 'flowbite-svelte-icons';
+	import { getCurrentUser } from '../utils/api';
 
 	export let drawerHidden: boolean = false;
 
@@ -40,23 +40,56 @@
 		closeDrawer();
 	});
 
-	let posts = [
-		{ name: 'Dashboard', icon: ChartPieOutline, href: '/dashboard' },
-		{ name: 'Participants', icon: UsersOutline, href: '/crud/participants' },
-		{ name: 'Trainers', icon: UserEditOutline, href: '/crud/trainers' },
-		{ name: 'Training Sessions', icon: BookOutline, href: '/crud/training_sessions' },
-		{
-			name: 'Settings',
-			icon: CogOutline,
-			children: {
-				Users: '/crud/users',
-				Profiles: '/crud/profiles',
-				Structures: '/crud/structures',
-				Domains: '/crud/domains',
-				Employers: '/crud/employers'
-			}
-		}
-	];
+	let role = getCurrentUser().role;
+	let posts = [];
+	switch (role) {
+		case '1': // responsible
+			posts = [{ name: 'Dashboard', icon: ChartPieOutline, href: '/dashboard' }];
+			break;
+		case '2': // user
+			posts = [
+				{ name: 'Participants', icon: UsersOutline, href: '/crud/participants' },
+				{ name: 'Trainers', icon: UserEditOutline, href: '/crud/trainers' },
+				{ name: 'Training Sessions', icon: BookOutline, href: '/crud/training_sessions' }
+			];
+			break;
+		default: // admin
+			posts = [
+				{ name: 'Dashboard', icon: ChartPieOutline, href: '/dashboard' },
+				{ name: 'Participants', icon: UsersOutline, href: '/crud/participants' },
+				{ name: 'Trainers', icon: UserEditOutline, href: '/crud/trainers' },
+				{ name: 'Training Sessions', icon: BookOutline, href: '/crud/training_sessions' },
+				{
+					name: 'Settings',
+					icon: CogOutline,
+					children: {
+						Users: '/crud/users',
+						Profiles: '/crud/profiles',
+						Structures: '/crud/structures',
+						Domains: '/crud/domains',
+						Employers: '/crud/employers'
+					}
+				}
+			];
+	}
+
+	// let posts = [
+	// 	{ name: 'Dashboard', icon: ChartPieOutline, href: '/dashboard' },
+	// 	{ name: 'Participants', icon: UsersOutline, href: '/crud/participants' },
+	// 	{ name: 'Trainers', icon: UserEditOutline, href: '/crud/trainers' },
+	// 	{ name: 'Training Sessions', icon: BookOutline, href: '/crud/training_sessions' },
+	// 	{
+	// 		name: 'Settings',
+	// 		icon: CogOutline,
+	// 		children: {
+	// 			Users: '/crud/users',
+	// 			Profiles: '/crud/profiles',
+	// 			Structures: '/crud/structures',
+	// 			Domains: '/crud/domains',
+	// 			Employers: '/crud/employers'
+	// 		}
+	// 	}
+	// ];
 
 	let dropdowns = Object.fromEntries(Object.keys(posts).map((x) => [x, false]));
 </script>

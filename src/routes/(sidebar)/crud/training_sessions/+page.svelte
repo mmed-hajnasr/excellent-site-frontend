@@ -9,34 +9,42 @@
 	import { onMount } from 'svelte';
 	import { authorizedFetch } from '../../../utils/api';
 
-	// let TrainingSessions: any[] = [];
-	import TrainingSessions from '../../../data/training_sessions.json';
+	let TrainingSessions: any[] = [];
+	let Domains: any[] = [];
 
-	// onMount(async () => {
-	// 	try {
-	// 		const res = await authorizedFetch('/training_sessions');
-	//
-	// 		const body = await res.json();
-	// 		TrainingSessions = body.training_sessions;
-	// 	} catch (err) {
-	// 		console.error(err);
-	// 	}
-	// });
+	onMount(async () => {
+		try {
+			const res = await authorizedFetch('/training_sessions');
+			const body = await res.json();
+			TrainingSessions = body.training_sessions;
+
+			const res1 = await authorizedFetch('/domains');
+			const body1 = await res1.json();
+			Domains = body1.domains;
+
+			for (let i = 0; i < TrainingSessions.length; i++) {
+				const domain = Domains.find((d) => d.id === TrainingSessions[i].domain_id);
+				if (domain) {
+					TrainingSessions[i].domain = domain.name;
+				}
+			}
+		} catch (err) {
+			console.error(err);
+		}
+	});
 
 	let searchQuery: string = '';
 	async function search() {
 		let request = !searchQuery.trim()
 			? '/training_sessions'
 			: '/training_sessions?search=' + searchQuery.trim();
-		console.log(request);
-		// 	try {
-		// 		const res = await authorizedFetch('/training_sessions');
-		//
-		// 		const body = await res.json();
-		// 		TrainingSessions = body.training_sessions;
-		// 	} catch (err) {
-		// 		console.error(err);
-		// 	}
+		try {
+			const res = await authorizedFetch(request);
+			const body = await res.json();
+			TrainingSessions = body.training_sessions;
+		} catch (err) {
+			console.error(err);
+		}
 	}
 
 	let openAddEdit: boolean = false; // modal control

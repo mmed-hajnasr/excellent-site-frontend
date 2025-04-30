@@ -1,9 +1,20 @@
 <script lang="ts">
 	import { Button, Select, Input, Label, Modal } from 'flowbite-svelte';
 	export let open: boolean = false; // modal control
+	import { authorizedFetch, handleSubmit } from '../../../utils/api';
+	import { onMount } from 'svelte';
 
-	// TODO: get all employers api:
-	import Employers from '../../../data/employers.json';
+	let Employers: any[] = [];
+
+	onMount(async () => {
+		try {
+			const res1 = await authorizedFetch('/employers');
+			const body1 = await res1.json();
+			Employers = body1.employers;
+		} catch (err) {
+			console.error(err);
+		}
+	});
 
 	let employer_items = Employers.map((employer) => ({
 		value: employer.id,
@@ -35,6 +46,12 @@
 			}
 		}
 	}
+
+	async function onSubmit(event: Event) {
+		const result = await handleSubmit(event, 'trainers');
+		open = false;
+		return result;
+	}
 </script>
 
 <Modal
@@ -43,11 +60,8 @@
 	size="md"
 	class="m-4"
 >
-	<!-- Modal body -->
 	<div class="space-y-6 p-0">
-		<!-- TODO: send post logic -->
-		<form action="#" use:init>
-			<!-- add the id of the trainer to be edited -->
+		<form action="#" use:init on:submit|preventDefault={onSubmit}>
 			{#if data?.id}
 				<input type="hidden" name="id" value={data.id} />
 			{/if}

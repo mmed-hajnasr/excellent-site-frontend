@@ -1,42 +1,56 @@
 <script lang="ts">
 	import { Button, Select, Input, Label, Modal, MultiSelect } from 'flowbite-svelte';
-	import { authorizedFetch } from '../../../utils/api';
+	import { authorizedFetch, handleSubmit } from '../../../utils/api';
+	import { onMount } from 'svelte';
+
 	export let open: boolean = false; // modal control
 	export let data: Record<string, string> = {};
 	let selected_participants: any[] = [];
 	let selected_trainers: any[] = [];
 
 	$: if (open && data?.id) {
-		// async () => {
-		// 	let res = await authorizedFetch('/training_sessions/${data.id}/participants');
-		// 	const body = await res.json();
-		// 	selected_participants = (body.participants as { id: number }[]).map((item) => item.id);
-		// };
-		// async () => {
-		// 	let res = await authorizedFetch('/training_sessions/${data.id}/trainers');
-		// 	const body = await res.json();
-		// 	selected_trainers = (body.trainers as { id: number }[]).map((item) => item.id);
-		// };
+		async () => {
+			let res = await authorizedFetch('/training_sessions/${data.id}/participants');
+			const body = await res.json();
+			selected_participants = (body.participants as { id: number }[]).map((item) => item.id);
+		};
+		async () => {
+			let res = await authorizedFetch('/training_sessions/${data.id}/trainers');
+			const body = await res.json();
+			selected_trainers = (body.trainers as { id: number }[]).map((item) => item.id);
+		};
 	}
 
-	// TODO: get all domains api:
-	import Domains from '../../../data/domains.json';
+	let Domains: any[] = [];
+	let AllTrainers: any[] = [];
+	let AllParticipants: any[] = [];
+	onMount(async () => {
+		try {
+			const res = await authorizedFetch('/trainers');
+			const body = await res.json();
+			AllTrainers = body.trainers;
+
+			const res1 = await authorizedFetch('/domains');
+			const body1 = await res1.json();
+			Domains = body1.domains;
+
+			const res2 = await authorizedFetch('/trainers');
+			const body2 = await res2.json();
+			AllParticipants = body2.participants;
+		} catch (err) {
+			console.error(err);
+		}
+	});
 
 	let domain_items = Domains.map((domain) => ({
 		value: domain.id,
 		name: domain.name
 	}));
 
-	// TODO: get all trainers api:
-	import AllTrainers from '../../../data/trainers.json';
-
 	let trainer_items = AllTrainers.map((trainer) => ({
 		value: trainer.id,
 		name: trainer.first_name + ' ' + trainer.last_name
 	}));
-
-	// TODO: get all participants api:
-	import AllParticipants from '../../../data/participants.json';
 
 	let participants_items = AllParticipants.map((participant) => ({
 		value: participant.id,
@@ -65,6 +79,12 @@
 			}
 		}
 	}
+
+	async function onSubmit(event: Event) {
+		const result = await handleSubmit(event, 'training_sessions');
+		open = false;
+		return result;
+	}
 </script>
 
 <Modal
@@ -75,9 +95,7 @@
 >
 	<!-- Modal body -->
 	<div class="space-y-6 p-0">
-		<!-- TODO: send post logic -->
-		<form action="#" use:init>
-			<!-- add the id of the element to be edited -->
+		<form action="#" use:init on:submit|preventDefault={onSubmit}>
 			{#if data?.id}
 				<input type="hidden" name="id" value={data.id} />
 			{/if}
