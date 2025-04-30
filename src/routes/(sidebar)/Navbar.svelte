@@ -7,7 +7,7 @@
 	export let fluid = true;
 	export let drawerHidden = false;
 	export let list = false;
-	let username = getCurrentUser().username;
+	let username = getCurrentUser()?.username;
 	if (username == undefined) username = 'mmed';
 </script>
 

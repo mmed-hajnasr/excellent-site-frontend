@@ -1,72 +1,52 @@
 <script lang="ts">
 	import { Button, Select, Input, Label, Modal } from 'flowbite-svelte';
+	import { createEventDispatcher } from 'svelte';
+	import { handleSubmit } from '../../../utils/api';
+
+	const dispatch = createEventDispatcher();
 	export let open: boolean = false; // modal control
-	import { onMount } from 'svelte';
-	import { authorizedFetch, handleSubmit } from '../../../utils/api';
+	export let data: Record<string, any> = {};
 
-	let Profiles: any[] = [];
-	let Structures: any[] = [];
-
-	onMount(async () => {
-		try {
-			const res = await authorizedFetch('/profiles');
-			const body = await res.json();
-			Profiles = body.profiles;
-			const res1 = await authorizedFetch('/structures');
-			const body1 = await res1.json();
-			Structures = body1.structures;
-		} catch (err) {
-			console.error(err);
-		}
-	});
-
-	let profile_items = Profiles.map((profile) => ({
-		value: profile.id,
-		name: profile.name
-	}));
-
-	let structure_items = Structures.map((structure) => ({
-		value: structure.id,
-		name: structure.name
-	}));
-
-	export let data: Record<string, string> = {};
-
-	let selected_profile: number | undefined;
-	let selected_structure: number | undefined;
+	let participant    : any   = {};
+	let structure_items: any[] = [];
+	let profile_items  : any[] = [];
 
 	function init(form: HTMLFormElement) {
-		if (data?.profile) {
-			const matchingProfile = profile_items.find((p) => p.name === data.profile);
-			if (matchingProfile) {
-				selected_profile = matchingProfile.value;
-			}
-		} else {
-			selected_profile = undefined;
-		}
+		participant = data.participant;
+		structure_items = data.allStructures.map((structure: any) => ({
+			name: structure.name,
+			value: structure.id,
+		}));
+		profile_items = data.allProfiles.map((profile: any) => ({
+			name: profile.name,
+			value: profile.id,
+		}));
 
-		if (data?.structure) {
-			const matchingStructure = structure_items.find((s) => s.name === data.structure);
-			if (matchingStructure) {
-				selected_structure = matchingStructure.value;
-			}
-		} else {
-			selected_structure = undefined;
-		}
-		for (const key in data) {
+		for (const key in participant) {
 			const el = form.elements.namedItem(key);
-			if (el) {
-				if (el instanceof HTMLInputElement) {
-					el.value = data[key];
-				} else if (el instanceof HTMLTextAreaElement) {
-					el.value = data[key];
-				}
+			if (el && (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement)) {
+				el.value = participant[key];
 			}
 		}
 	}
 
 	async function onSubmit(event: Event) {
 		const result = await handleSubmit(event, 'participants');
+		console.log('result: ', result);
+
+		// Dispatch an event to notify the parent component
+		const isNew: boolean = !participant.id;
+		const returnedParticipant = isNew ? result.created_participant : result.updated_participant;
+		console.log('returnedParticipant: ', returnedParticipant);
+
+		// associate the profile and structure names
+		returnedParticipant.profile = profile_items.find(profile => profile.value === returnedParticipant.profile_id)?.name;
+		returnedParticipant.structure = structure_items.find(structure => structure.value === returnedParticipant.structure_id)?.name;
+
+		dispatch('participantUpdated', { 
+			isNew,
+			participant: returnedParticipant,
+		});
 		open = false;
 		return result;
 	}
@@ -74,14 +54,14 @@
 
 <Modal
 	bind:open
-	title={Object.keys(data).length ? 'Edit participant' : 'Add new participant'}
+	title={Object.keys(participant).length ? 'Edit participant' : 'Add new participant'}
 	size="md"
 	class="m-4"
 >
 	<div class="space-y-6 p-0">
-		<form use:init on:submit|preventDefault={onSubmit}>
-			{#if data?.id}
-				<input type="hidden" name="id" value={data.id} />
+		<form id="add-edit-participant" use:init on:submit|preventDefault={onSubmit}>
+			{#if participant.id}
+				<input type="hidden" name="id" value={participant.id} />
 			{/if}
 			<div class="grid grid-cols-6 gap-6">
 				<Label class="col-span-6 space-y-2 sm:col-span-3">
@@ -99,6 +79,7 @@
 						type="email"
 						class="border outline-none"
 						placeholder="e.g. bonnie@flowbite.com"
+						required
 					/>
 				</Label>
 				<Label class="col-span-6 space-y-2 sm:col-span-3">
@@ -108,6 +89,7 @@
 						type="tel"
 						class="border outline-none"
 						placeholder="e.g. 56 200 029"
+						required
 					/>
 				</Label>
 				<Label class="col-span-6 space-y-2 sm:col-span-3">
@@ -116,7 +98,8 @@
 						class="mt-2"
 						name="profile_id"
 						items={profile_items}
-						bind:value={selected_profile}
+						bind:value={participant.profile_id}
+						required
 					/>
 				</Label>
 				<Label class="col-span-6 space-y-2 sm:col-span-3">
@@ -125,20 +108,16 @@
 						class="mt-2"
 						name="structure_id"
 						items={structure_items}
-						bind:value={selected_structure}
+						bind:value={participant.structure_id}
+						required
 					/>
 				</Label>
-
-				<!-- <Label class="col-span-6 space-y-2 sm:col-span-3"> -->
-				<!--                 Structure -->
-				<!-- 	<Select class="mt-2" {structure_items} bind:value={selected} /> -->
-				<!-- </Label> -->
 			</div>
 		</form>
 	</div>
 
 	<!-- Modal footer -->
 	<div slot="footer">
-		<Button type="submit">{Object.keys(data).length ? 'Save all' : 'Add user'}</Button>
+		<Button type="submit" form="add-edit-participant">{Object.keys(participant).length ? 'Save all' : 'Add user'}</Button>
 	</div>
 </Modal>

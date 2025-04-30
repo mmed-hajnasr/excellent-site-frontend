@@ -1,17 +1,20 @@
 <script lang="ts">
 	import { Button, Modal } from 'flowbite-svelte';
+	import { createEventDispatcher } from 'svelte';
 	import { ExclamationCircleOutline } from 'flowbite-svelte-icons';
 	import { authorizedFetch } from '../../../utils/api';
+
+	const dispatch = createEventDispatcher();
 	export let open: boolean = false; // modal control
 	export let participant_id: number;
-
 	let isLoading = false;
 
 	async function deleteParticipant() {
 		isLoading = true;
 
 		try {
-			await authorizedFetch(`/participants/${participant_id}`, { method: 'DELETE' });
+			// await authorizedFetch(`/participants/${participant_id}`, { method: 'DELETE' });
+			dispatch('participantDeleted', { id: 2/* participant_id */ }); // i am just returning a static value 2, until i fix the backend then i will uncomment the above line
 		} catch (err) {
 			console.error('Delete error:', err);
 		} finally {

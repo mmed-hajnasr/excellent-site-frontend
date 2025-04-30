@@ -40,7 +40,7 @@
 		closeDrawer();
 	});
 
-	let role = getCurrentUser().role;
+	let role = getCurrentUser()?.role;
 	let posts = [];
 	switch (role) {
 		case '1': // responsible

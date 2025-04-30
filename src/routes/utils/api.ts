@@ -102,7 +102,7 @@ export async function handleSubmit(event: Event, endpoint: string) {
   const payload = Object.fromEntries(formData.entries());
 
   try {
-    endpoint = payload?.id ? `/${endpoint}/${payload.id}` : '/${endpoint}';
+    endpoint = payload?.id ? `/${endpoint}/${payload.id}` : `/${endpoint}`;
     const method = payload?.id ? 'PUT' : 'POST';
 
     const response = await authorizedFetch(endpoint, {

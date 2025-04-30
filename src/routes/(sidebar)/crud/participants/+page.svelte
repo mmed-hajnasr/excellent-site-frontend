@@ -9,38 +9,63 @@
 	import MetaTag from '../../../utils/MetaTag.svelte';
 	import { authorizedFetch } from '../../../utils/api';
 
+	let dataIsLoaded: boolean = false;
+
 	let Participants: any[] = [];
-	let Profiles: any[] = [];
-	let Structures: any[] = [];
+	let Profiles:     any[] = [];
+	let Structures:   any[] = [];
+
+	async function loadData() {
+		const participantsResponse = await authorizedFetch('/participants');
+		const participantsBody     = await participantsResponse.json();
+		Participants               = participantsBody.participants;
+
+		const profilesResponse = await authorizedFetch('/profiles');
+		const profilesBody 	   = await profilesResponse.json();
+		Profiles               = profilesBody.profiles;
+
+		const structuresResponse = await authorizedFetch('/structures');
+		const structuresBody     = await structuresResponse.json();
+		Structures               = structuresBody.structures;
+	}
+
+	function associateProfilesAndStructures() {
+		Participants = Participants.map((participant) => ({
+			...participant,
+			// in case the item is not found, we set the value to undefined
+			profile: Profiles.find(profile => profile.id === participant.profile_id)?.name,
+			structure: Structures.find(structure => structure.id === participant.structure_id)?.name,
+		}));
+	}
 
 	onMount(async () => {
 		try {
-			const res_participant = await authorizedFetch('/participants');
-			const body1 = await res_participant.json();
-			Participants = body1.participants;
-
-			const res_profile = await authorizedFetch('/profiles');
-			const body2 = await res_profile.json();
-			Profiles = body2.profiles;
-
-			const res_structure = await authorizedFetch('/structures');
-			const body3 = await res_structure.json();
-			Structures = body3.structures;
-
-			for (let i = 0; i < Participants.length; i++) {
-				const profile = Profiles.find((p) => p.id === Participants[i].profile_id);
-				if (profile) {
-					Participants[i].profile = profile.name;
-				}
-				const structure = Structures.find((s) => s.id === Participants[i].structure_id);
-				if (structure) {
-					Participants[i].structure = structure.name;
-				}
-			}
+			await loadData();
+			associateProfilesAndStructures();
+			dataIsLoaded = true;
 		} catch (err) {
 			console.error(err);
 		}
 	});
+
+	function handleParticipantCreateUpdate(event: CustomEvent) {
+		const { participant, isNew } = event.detail;
+		if (isNew) {
+			// Add the new participant to the list
+			Participants = [participant, ...Participants];
+		} else {
+			// Update the existing participant in the list
+			const index = Participants.findIndex(p => p.id === participant.id);
+			if (index !== -1) Participants[index] = participant;
+			Participants = [...Participants];
+		}
+	}
+
+	function handleParticipantDelete(event: CustomEvent) {
+ 		const { id } = event.detail;
+		// Remove the participant from the list
+		Participants = Participants.filter(p => p.id !== id);
+	}
 
 	let searchQuery: string = '';
 	async function search() {
@@ -144,6 +169,17 @@
 		</TableBody>
 	</Table>
 </main>
+
 <!-- Modals -->
-<AddEdit bind:open={openAddEdit} data={current_participant} />
-<Delete bind:open={openDelete} participant_id={current_participant.id} />
+{#if dataIsLoaded}
+<AddEdit
+  bind:open={openAddEdit}
+  on:participantUpdated={handleParticipantCreateUpdate}
+  data={{ participant: current_participant, allProfiles: Profiles, allStructures: Structures }}
+/>
+{/if}
+<Delete
+  bind:open={openDelete}
+  participant_id={current_participant.id}
+  on:participantDeleted={handleParticipantDelete}
+/>
