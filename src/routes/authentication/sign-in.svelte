@@ -18,13 +18,13 @@
 	let siteImgClass = 'mr-4 h-11';
 	let cardH1Class = 'text-2xl font-bold text-gray-900 dark:text-white';
 
-	let email = '';
+	let username = '';
 	let password = '';
 
 	const onSubmit = (e: Event) => {
 		e.preventDefault(); // Prevent default form submission
-        console.log(email,password);
-        signIn(email,password);
+		console.log(username, password);
+		signIn(username, password);
 	};
 
 	const path: string = '/authentication/sign-in';
@@ -48,15 +48,15 @@
 			</h1>
 			<form class="mt-8 space-y-6" on:submit|preventDefault>
 				<div>
-					<Label for="email" class="mb-2 dark:text-white">Your email</Label>
+					<Label for="username" class="mb-2 dark:text-white">Your username</Label>
 					<Input
-						type="email"
-						name="email"
-						id="email"
-						placeholder="name@company.com"
+						type="text"
+						name="username"
+						id="username"
+						placeholder="mmed241"
 						required
 						class="border outline-none dark:border-gray-600 dark:bg-gray-700"
-						bind:value={email}
+						bind:value={username}
 					/>
 				</div>
 				<div>
