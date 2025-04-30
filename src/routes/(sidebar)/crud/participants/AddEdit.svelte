@@ -54,7 +54,6 @@
 			selected_structure = undefined;
 		}
 		for (const key in data) {
-			// console.log(key, data[key]);
 			const el = form.elements.namedItem(key);
 			if (el) {
 				if (el instanceof HTMLInputElement) {
@@ -79,10 +78,8 @@
 	size="md"
 	class="m-4"
 >
-	<!-- Modal body -->
 	<div class="space-y-6 p-0">
-		<form action="#" use:init on:submit|preventDefault={onSubmit}>
-			<!-- add the id of the participant to be edited -->
+		<form use:init on:submit|preventDefault={onSubmit}>
 			{#if data?.id}
 				<input type="hidden" name="id" value={data.id} />
 			{/if}

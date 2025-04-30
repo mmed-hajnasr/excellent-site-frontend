@@ -95,7 +95,7 @@
 >
 	<!-- Modal body -->
 	<div class="space-y-6 p-0">
-		<form action="#" use:init on:submit|preventDefault={onSubmit}>
+		<form use:init on:submit|preventDefault={onSubmit}>
 			{#if data?.id}
 				<input type="hidden" name="id" value={data.id} />
 			{/if}

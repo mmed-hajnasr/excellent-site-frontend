@@ -1,3 +1,4 @@
+import { browser } from "$app/environment";
 import { goto } from "$app/navigation";
 
 export const role_name: Record<number, string> = {
@@ -7,6 +8,7 @@ export const role_name: Record<number, string> = {
 };
 
 export async function signIn(username: string, password: string) {
+  if (!browser) return null;
   try {
     const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/login`, {
       method: 'POST',
@@ -39,6 +41,7 @@ export async function signIn(username: string, password: string) {
 }
 
 export async function signOut() {
+  if (!browser) return null;
   // Clear all auth-related data from localStorage
   localStorage.removeItem('token');
   localStorage.removeItem('username');
@@ -81,6 +84,7 @@ export async function authorizedFetch(endpoint: string, options: RequestInit = {
 
 // Helper function to get current user info
 export function getCurrentUser() {
+  if (!browser) return null;
   return {
     username: localStorage.getItem('username'),
     role: localStorage.getItem('role'),
@@ -89,6 +93,7 @@ export function getCurrentUser() {
 }
 
 export async function handleSubmit(event: Event, endpoint: string) {
+  if (!browser) return null;
   event.preventDefault();
 
   const form = event.target as HTMLFormElement;
