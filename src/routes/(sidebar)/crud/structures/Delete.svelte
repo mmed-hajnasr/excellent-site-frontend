@@ -2,6 +2,9 @@
 	import { Button, Modal } from 'flowbite-svelte';
 	import { ExclamationCircleOutline } from 'flowbite-svelte-icons';
 	import { authorizedFetch } from '../../../utils/api';
+	import { createEventDispatcher } from 'svelte';
+
+	const dispatch = createEventDispatcher();
 	export let open: boolean = false; // modal control
 	export let structure_id: number;
 
@@ -12,6 +15,7 @@
 
 		try {
 			await authorizedFetch(`/structures/${structure_id}`, { method: 'DELETE' });
+			dispatch('structureDelete', { id: structure_id });
 		} catch (err) {
 			console.error('Delete error:', err);
 		} finally {
