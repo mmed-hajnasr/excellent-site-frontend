@@ -8,6 +8,8 @@
 	import MetaTag from '../../../utils/MetaTag.svelte';
 	import { onMount } from 'svelte';
 	import { authorizedFetch } from '../../../utils/api';
+	import TrainersList from './TrainersList.svelte';
+	import ParticipantsList from './ParticipantsList.svelte';
 
 	let dataIsLoaded: boolean = false;
 
@@ -77,6 +79,8 @@
 
 	let openAddEdit: boolean = false; // modal control
 	let openDelete: boolean = false; // modal control
+	let openTrainers: boolean = false;
+	let openParticipants: boolean = false;
 
 	let current_session: any = {};
 	const path: string = '/crud/training_sessions';
@@ -142,18 +146,24 @@
 						<Button
 							size="sm"
 							class="gap-2 px-3"
-							on:click={() => ((current_session = training_session), (openAddEdit = true))}
+							on:click={() => {
+								current_session = training_session;
+								openTrainers = true;
+							}}
 						>
-							show trainers
+							Show trainers
 						</Button>
 					</TableBodyCell>
 					<TableBodyCell class="p-4">
 						<Button
 							size="sm"
 							class="gap-2 px-3"
-							on:click={() => ((current_session = training_session), (openAddEdit = true))}
+							on:click={() => {
+								current_session = training_session;
+								openParticipants = true;
+							}}
 						>
-							show participants
+							Show participants
 						</Button>
 					</TableBodyCell>
 					<TableBodyCell class="space-x-2 p-4">
@@ -191,4 +201,13 @@
   bind:open={openDelete}
   on:trainingSessionDelete={handleTrainingSessionDelete}
   session_id={current_session.id}
+/>
+<TrainersList 
+    bind:open={openTrainers}
+    session_id={current_session.id}
+/>
+
+<ParticipantsList
+    bind:open={openParticipants}
+    session_id={current_session.id}
 />

@@ -5,37 +5,43 @@
 	import Pie from './Pie.svelte';
 	import { authorizedFetch } from '../api';
 
-	let data = [
-		{
-			name: 'domain name 1',
-			data: [364, 311, 280, 199, 378]
-		},
-		{
-			name: 'domain name 2',
-			data: [400, 374, 280, 311, 199]
-		}
-	];
+	let data: any[] = []; // Initialize empty array
+	let chartOptions = getChartOptions(false);
+	let dark = false;
 
 	onMount(async () => {
-		// TODO: remove comments
-		// try {
-		// 	const dash_data = await authorizedFetch('/dashboard/training_sessions');
-		// 	data = await dash_data.json();
-		// } catch (err) {
-		// 	console.error(err);
-		// }
+		try {
+			const dash_data = await authorizedFetch('/dashboard/training_sessions');
+			const responseData = await dash_data.json();
+			data = Object.entries(responseData).map(([name, values]) => ({ 
+				name, 
+				data: values as number[] 
+			}));
+			
+			// Update chart options with new data
+			chartOptions = {
+				...getChartOptions(dark),
+				series: data
+			};
+			
+		} catch (err) {
+			console.error(err);
+			// Fallback to sample data if needed
+			data = [
+				{ name: 'domain name 1', data: [364, 311, 280, 199, 378] },
+				{ name: 'domain name 2', data: [400, 374, 280, 311, 199] }
+			];
+			chartOptions.series = data;
+		}
 	});
-
-	let chartOptions = getChartOptions(false);
-	chartOptions.series = data;
-
-	let dark = false;
 
 	function handler(ev: Event) {
 		if ('detail' in ev && typeof ev.detail === 'boolean') {
-			chartOptions = getChartOptions(ev.detail);
-			chartOptions.series = data;
-			dark = !!ev.detail;
+			dark = ev.detail;
+			chartOptions = {
+				...getChartOptions(dark),
+				series: data // Use latest data
+			};
 		}
 	}
 
