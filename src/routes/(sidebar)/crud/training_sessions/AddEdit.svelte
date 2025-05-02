@@ -1,87 +1,44 @@
 <script lang="ts">
 	import { Button, Select, Input, Label, Modal, MultiSelect } from 'flowbite-svelte';
-	import { authorizedFetch, handleSubmit } from '../../../utils/api';
-	import { onMount } from 'svelte';
+	import { handleSubmit } from '../../../utils/api';
+	import { createEventDispatcher } from 'svelte';
 
+	const dispatch = createEventDispatcher();
 	export let open: boolean = false; // modal control
-	export let data: Record<string, string> = {};
-	let selected_participants: any[] = [];
-	let selected_trainers: any[] = [];
-
-	$: if (open && data?.id) {
-		async () => {
-			let res = await authorizedFetch('/training_sessions/${data.id}/participants');
-			const body = await res.json();
-			selected_participants = (body.participants as { id: number }[]).map((item) => item.id);
-		};
-		async () => {
-			let res = await authorizedFetch('/training_sessions/${data.id}/trainers');
-			const body = await res.json();
-			selected_trainers = (body.trainers as { id: number }[]).map((item) => item.id);
-		};
-	}
-
-	let Domains: any[] = [];
-	let AllTrainers: any[] = [];
-	let AllParticipants: any[] = [];
-	onMount(async () => {
-		try {
-			const res = await authorizedFetch('/trainers');
-			const body = await res.json();
-			AllTrainers = body.trainers;
-
-			const res1 = await authorizedFetch('/domains');
-			const body1 = await res1.json();
-			Domains = body1.domains;
-
-			const res2 = await authorizedFetch('/trainers');
-			const body2 = await res2.json();
-			AllParticipants = body2.participants;
-		} catch (err) {
-			console.error(err);
-		}
-	});
-
-	let domain_items = Domains.map((domain) => ({
-		value: domain.id,
-		name: domain.name
-	}));
-
-	let trainer_items = AllTrainers.map((trainer) => ({
-		value: trainer.id,
-		name: trainer.first_name + ' ' + trainer.last_name
-	}));
-
-	let participants_items = AllParticipants.map((participant) => ({
-		value: participant.id,
-		name: participant.first_name + ' ' + participant.last_name
-	}));
-
-	let selected_domain: number | undefined;
+	export let data: Record<string, any> = {};
+	let training_session: any = {};
+	let isNewSession: boolean = false;
+	let domain_items: any[] = [];
 
 	function init(form: HTMLFormElement) {
-		if (data?.domain) {
-			const matchingDomain = domain_items.find((s) => s.name === data.domain);
-			if (matchingDomain) {
-				selected_domain = matchingDomain.value;
-			}
-		} else {
-			selected_domain = undefined;
-		}
-		for (const key in data) {
+		training_session = data.training_session;
+		isNewSession = Object.keys(training_session).length === 0;
+		domain_items = data.allDomains.map((domain: any) => ({
+			name: domain.name,
+			value: domain.id
+		}));
+
+		for (const key in training_session) {
 			const el = form.elements.namedItem(key);
-			if (el) {
-				if (el instanceof HTMLInputElement) {
-					el.value = data[key];
-				} else if (el instanceof HTMLTextAreaElement) {
-					el.value = data[key];
-				}
+			if (el && (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement)) {
+				el.value = training_session[key];
 			}
 		}
 	}
 
 	async function onSubmit(event: Event) {
 		const result = await handleSubmit(event, 'training_sessions');
+
+		const isNew: boolean = !training_session.id;
+		const returnedTrainingSession = isNew ? result.created_training_session : result.updated_training_session;
+
+		// associate the domain name
+		returnedTrainingSession.domain = domain_items.find((domain) => domain.value === returnedTrainingSession.domain_id)?.name;
+
+		dispatch('trainingSessionCreateUpdate', {
+			isNew,
+			training_session: returnedTrainingSession
+		});
 		open = false;
 		return result;
 	}
@@ -89,15 +46,15 @@
 
 <Modal
 	bind:open
-	title={Object.keys(data).length ? 'Edit training session' : 'Add new training session'}
+	title={!isNewSession ? 'Edit training session' : 'Add new training session'}
 	size="md"
 	class="m-4"
 >
 	<!-- Modal body -->
 	<div class="space-y-6 p-0">
-		<form use:init on:submit|preventDefault={onSubmit}>
-			{#if data?.id}
-				<input type="hidden" name="id" value={data.id} />
+		<form id="add-edit-training-session" use:init on:submit|preventDefault={onSubmit}>
+			{#if training_session?.id}
+				<input type="hidden" name="id" value={training_session.id} />
 			{/if}
 			<div class="grid grid-cols-6 gap-6">
 				<Label class="col-span-6 space-y-2 sm:col-span-3">
@@ -147,25 +104,7 @@
 				</Label>
 				<Label class="col-span-6 space-y-2 sm:col-span-6">
 					Domains
-					<Select class="mt-2" name="domain" items={domain_items} bind:value={selected_domain} />
-				</Label>
-				<Label class="col-span-6 space-y-2 sm:col-span-6">
-					Trainers
-					<MultiSelect
-						class="mt-2"
-						name="trainers"
-						items={trainer_items}
-						bind:value={selected_trainers}
-					/>
-				</Label>
-				<Label class="col-span-6 space-y-2 sm:col-span-6">
-					Participants
-					<MultiSelect
-						class="mt-2"
-						name="participants"
-						items={participants_items}
-						bind:value={selected_participants}
-					/>
+					<Select class="mt-2" name="domain" items={domain_items} bind:value={training_session.domain_id} required />
 				</Label>
 			</div>
 		</form>
@@ -173,6 +112,6 @@
 
 	<!-- Modal footer -->
 	<div slot="footer">
-		<Button type="submit">{Object.keys(data).length ? 'Save all' : 'Add Training session'}</Button>
+		<Button type="submit" form="add-edit-training-session">{!isNewSession ? 'Save all' : 'Add Training session'}</Button>
 	</div>
 </Modal>

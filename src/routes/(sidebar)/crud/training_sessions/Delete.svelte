@@ -2,9 +2,11 @@
 	import { Button, Modal } from 'flowbite-svelte';
 	import { ExclamationCircleOutline } from 'flowbite-svelte-icons';
 	import { authorizedFetch } from '../../../utils/api';
+	import { createEventDispatcher } from 'svelte';
+
+	const dispatch = createEventDispatcher();
 	export let open: boolean = false; // modal control
 	export let session_id: number;
-
 	let isLoading = false;
 
 	async function deleteTrainer() {
@@ -12,6 +14,7 @@
 
 		try {
 			await authorizedFetch(`/training_sessions/${session_id}`, { method: 'DELETE' });
+			dispatch('trainingSessionDelete', { id: session_id });
 		} catch (err) {
 			console.error('Delete error:', err);
 		} finally {

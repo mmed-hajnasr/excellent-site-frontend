@@ -9,29 +9,57 @@
 	import { onMount } from 'svelte';
 	import { authorizedFetch } from '../../../utils/api';
 
+	let dataIsLoaded: boolean = false;
+
 	let TrainingSessions: any[] = [];
-	let Domains: any[] = [];
+	let Domains         : any[] = [];
+
+	async function loadData() {
+		const trainingSessionsResponse = await authorizedFetch('/training_sessions');
+		const trainingSessionsBody     = await trainingSessionsResponse.json();
+		TrainingSessions               = trainingSessionsBody.training_sessions;
+
+		const domainsResponse = await authorizedFetch('/domains');
+		const domainsBody     = await domainsResponse.json();
+		Domains               = domainsBody.domains;
+	}
+
+	function associateDomains() {
+		TrainingSessions = TrainingSessions.map((training_session) => ({
+			...training_session,
+			// in case the item is not found, we set the value to undefined
+			domain: Domains.find((domain) => domain.id === training_session.domain_id)?.name,
+		}));
+	}
 
 	onMount(async () => {
 		try {
-			const res = await authorizedFetch('/training_sessions');
-			const body = await res.json();
-			TrainingSessions = body.training_sessions;
-
-			const res1 = await authorizedFetch('/domains');
-			const body1 = await res1.json();
-			Domains = body1.domains;
-
-			for (let i = 0; i < TrainingSessions.length; i++) {
-				const domain = Domains.find((d) => d.id === TrainingSessions[i].domain_id);
-				if (domain) {
-					TrainingSessions[i].domain = domain.name;
-				}
-			}
+			await loadData();
+			associateDomains();
+			dataIsLoaded = true;
 		} catch (err) {
 			console.error(err);
 		}
 	});
+
+	function handleTrainingSessionCreateUpdate(event: CustomEvent) {
+		const { training_session, isNew } = event.detail;
+		if (isNew) {
+			// Add the new training session to the list
+			TrainingSessions = [training_session, ...TrainingSessions];
+		} else {
+			// Update the existing training session in the list
+			const index = TrainingSessions.findIndex((t) => t.id === training_session.id);
+			if (index !== -1) TrainingSessions[index] = training_session;
+			TrainingSessions = [...TrainingSessions];
+		}
+	}
+
+	function handleTrainingSessionDelete(event: CustomEvent) {
+		const { id } = event.detail;
+		// Remove the deleted training session from the list
+		TrainingSessions = TrainingSessions.filter((training_session) => training_session.id !== id);
+	}
 
 	let searchQuery: string = '';
 	async function search() {
@@ -108,13 +136,25 @@
 							</div>
 						</div>
 					</TableBodyCell>
-					<TableBodyCell class="p-4">{training_session.duration} days</TableBodyCell>
+					<TableBodyCell class="p-4">{training_session.duration_days} days</TableBodyCell>
 					<TableBodyCell class="p-4">{training_session.budget}$</TableBodyCell>
 					<TableBodyCell class="p-4">
-						{training_session.nb_trainers} trainers
+						<Button
+							size="sm"
+							class="gap-2 px-3"
+							on:click={() => ((current_session = training_session), (openAddEdit = true))}
+						>
+							show trainers
+						</Button>
 					</TableBodyCell>
 					<TableBodyCell class="p-4">
-						{training_session.nb_participants} participants
+						<Button
+							size="sm"
+							class="gap-2 px-3"
+							on:click={() => ((current_session = training_session), (openAddEdit = true))}
+						>
+							show participants
+						</Button>
 					</TableBodyCell>
 					<TableBodyCell class="space-x-2 p-4">
 						<Button
@@ -140,6 +180,15 @@
 </main>
 
 <!-- Modals -->
-
-<AddEdit bind:open={openAddEdit} data={current_session} />
-<Delete bind:open={openDelete} session_id={current_session.id} />
+{#if dataIsLoaded}
+<AddEdit
+  bind:open={openAddEdit}
+  on:trainingSessionCreateUpdate={handleTrainingSessionCreateUpdate}
+  data={{ training_session: current_session, allDomains: Domains }}
+/>
+{/if}
+<Delete
+  bind:open={openDelete}
+  on:trainingSessionDelete={handleTrainingSessionDelete}
+  session_id={current_session.id}
+/>
