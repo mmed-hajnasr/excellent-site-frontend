@@ -9,29 +9,57 @@
 	import { onMount } from 'svelte';
 	import { authorizedFetch } from '../../../utils/api';
 
-	let Trainers: any[] = [];
+	let dataIsLoaded: boolean = false;
+
+	let Trainers : any[] = [];
 	let Employers: any[] = [];
+
+	async function loadData() {
+		const trainersResponse = await authorizedFetch('/trainers');
+		const trainersBody     = await trainersResponse.json();
+		Trainers               = trainersBody.trainers;
+
+		const employersResponse = await authorizedFetch('/employers');
+		const employersBody     = await employersResponse.json();
+		Employers               = employersBody.employers;
+	}
+
+	function associateEmployers() {
+		Trainers = Trainers.map((trainer) => ({
+			...trainer,
+			// in case the item is not found, we set the value to undefined
+			employer: Employers.find((employer) => employer.id === trainer.employer_id)?.name,
+		}));
+	}
 
 	onMount(async () => {
 		try {
-			const res = await authorizedFetch('/trainers');
-			const body = await res.json();
-			Trainers = body.trainers;
-
-			const res1 = await authorizedFetch('/employers');
-			const body1 = await res1.json();
-			Employers = body1.employers;
-
-			for (let i = 0; i < Trainers.length; i++) {
-				const employer = Employers.find((e) => e.id === Trainers[i].employer_id);
-				if (employer) {
-					Trainers[i].employer = employer.name;
-				}
-			}
+			await loadData();
+			associateEmployers();
+			dataIsLoaded = true;
 		} catch (err) {
 			console.error(err);
 		}
 	});
+
+	function handleTrainerCreateUpdate(event: CustomEvent) {
+		const { trainer, isNew } = event.detail;
+		if (isNew) {
+			// Add the new trainer to the list
+			Trainers = [trainer, ...Trainers];
+		} else {
+			// Update the existing trainer in the list
+			const index = Trainers.findIndex((t) => t.id === trainer.id);
+			if (index !== -1) Trainers[index] = trainer;
+			Trainers = [...Trainers];
+		}
+	}
+
+	function handleTrainerDelete(event: CustomEvent) {
+		const { id } = event.detail;
+		// Remove the deleted trainer from the list
+		Trainers = Trainers.filter((trainer) => trainer.id !== id);
+	}
 
 	let searchQuery: string = '';
 	async function search() {
@@ -92,7 +120,7 @@
 	<Table>
 		<TableHead class="border-y border-gray-200 bg-gray-100 dark:border-gray-700">
 			<TableHeadCell class="w-4 p-4"></TableHeadCell>
-			{#each ['Name', 'Phone Number', 'Employer', 'Actions'] as title}
+			{#each ['Name', 'Phone Number', 'Type', 'Employer', 'Actions'] as title}
 				<TableHeadCell class="p-4 font-medium">{title}</TableHeadCell>
 			{/each}
 		</TableHead>
@@ -112,6 +140,7 @@
 						</div>
 					</TableBodyCell>
 					<TableBodyCell class="p-4">{trainer.phone_number}</TableBodyCell>
+					<TableBodyCell class="p-4">{trainer.type}</TableBodyCell>
 					<TableBodyCell class="p-4">{trainer.employer}</TableBodyCell>
 					<TableBodyCell class="space-x-2 p-4">
 						<Button
@@ -137,5 +166,15 @@
 </main>
 
 <!-- Modals -->
-<AddEdit bind:open={openAddEdit} data={current_trainer} />
-<Delete bind:open={openDelete} trainer_id={current_trainer.id} />
+{#if dataIsLoaded}
+<AddEdit
+  bind:open={openAddEdit}
+  on:trainerCreateUpdate={handleTrainerCreateUpdate}
+  data={{ trainer: current_trainer, allEmployers: Employers }}
+/>
+{/if}
+<Delete
+  bind:open={openDelete}
+  on:trainerDelete={handleTrainerDelete}
+  trainer_id={current_trainer.id}
+/>

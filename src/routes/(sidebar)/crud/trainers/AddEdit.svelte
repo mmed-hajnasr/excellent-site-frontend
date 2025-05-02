@@ -1,54 +1,49 @@
 <script lang="ts">
 	import { Button, Select, Input, Label, Modal } from 'flowbite-svelte';
+	import { handleSubmit } from '../../../utils/api';
+	import { createEventDispatcher } from 'svelte';
+
+	const dispatch = createEventDispatcher();
 	export let open: boolean = false; // modal control
-	import { authorizedFetch, handleSubmit } from '../../../utils/api';
-	import { onMount } from 'svelte';
+	export let data: Record<string, any> = {};
 
-	let Employers: any[] = [];
-
-	onMount(async () => {
-		try {
-			const res1 = await authorizedFetch('/employers');
-			const body1 = await res1.json();
-			Employers = body1.employers;
-		} catch (err) {
-			console.error(err);
-		}
-	});
-
-	let employer_items = Employers.map((employer) => ({
-		value: employer.id,
-		name: employer.name
+	let trainer  	   : any   = {};
+	let isNewTrainer   : boolean = false;
+	let employer_items: any[] = [];
+	const type_items: any = ['INTERNAL', 'EXTERNAL'].map((type: string) => ({
+		name: type,
+		value: type,
 	}));
 
-	export let data: Record<string, string> = {};
-
-	let selected_employer: number | undefined;
-
 	function init(form: HTMLFormElement) {
-		if (data?.Employer) {
-			const matchingEmployer = employer_items.find((s) => s.name === data.Employer);
-			if (matchingEmployer) {
-				selected_employer = matchingEmployer.value;
-			}
-		} else {
-			selected_employer = undefined;
-		}
-		for (const key in data) {
-			// console.log(key, data[key]);
+		trainer = data.trainer;
+		isNewTrainer = Object.keys(trainer).length === 0;
+		employer_items = data.allEmployers.map((employer: any) => ({
+			name: employer.name,
+			value: employer.id,
+		}));
+
+		for (const key in trainer) {
 			const el = form.elements.namedItem(key);
-			if (el) {
-				if (el instanceof HTMLInputElement) {
-					el.value = data[key];
-				} else if (el instanceof HTMLTextAreaElement) {
-					el.value = data[key];
-				}
+			if (el && (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement)) {
+				el.value = trainer[key];
 			}
 		}
 	}
 
 	async function onSubmit(event: Event) {
 		const result = await handleSubmit(event, 'trainers');
+		
+		const isNew: boolean = !trainer.id;
+		const returnedTrainer = isNew ? result.created_trainer : result.updated_trainer;
+
+		// associate the employer name
+		returnedTrainer.employer = employer_items.find(employer => employer.value === returnedTrainer.employer_id)?.name;
+
+		dispatch('trainerCreateUpdate', {
+			isNew,
+			trainer: returnedTrainer,
+		});
 		open = false;
 		return result;
 	}
@@ -56,14 +51,14 @@
 
 <Modal
 	bind:open
-	title={Object.keys(data).length ? 'Edit trainer' : 'Add new trainer'}
+	title={!isNewTrainer ? 'Edit trainer' : 'Add new trainer'}
 	size="md"
 	class="m-4"
 >
 	<div class="space-y-6 p-0">
-		<form use:init on:submit|preventDefault={onSubmit}>
-			{#if data?.id}
-				<input type="hidden" name="id" value={data.id} />
+		<form id="add-edit-trainer" use:init on:submit|preventDefault={onSubmit}>
+			{#if trainer?.id}
+				<input type="hidden" name="id" value={trainer.id} />
 			{/if}
 			<div class="grid grid-cols-6 gap-6">
 				<Label class="col-span-6 space-y-2 sm:col-span-3">
@@ -81,6 +76,7 @@
 						type="email"
 						class="border outline-none"
 						placeholder="e.g. bonnie@flowbite.com"
+						required
 					/>
 				</Label>
 				<Label class="col-span-6 space-y-2 sm:col-span-3">
@@ -98,7 +94,17 @@
 						class="mt-2"
 						name="employer_id"
 						items={employer_items}
-						bind:value={selected_employer}
+						bind:value={trainer.employer_id}
+						required
+					/>
+				</Label>
+				<Label class="col-span-6 space-y-2 sm:col-span-6">
+					Type
+					<Select
+						class="mt-2"
+						name="type"
+						items={type_items}
+						required
 					/>
 				</Label>
 			</div>
@@ -107,6 +113,6 @@
 
 	<!-- Modal footer -->
 	<div slot="footer">
-		<Button type="submit">{Object.keys(data).length ? 'Save all' : 'Add Trainer'}</Button>
+		<Button type="submit" form="add-edit-trainer">{!isNewTrainer ? 'Save all' : 'Add Trainer'}</Button>
 	</div>
 </Modal>
