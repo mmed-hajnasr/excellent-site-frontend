@@ -1,25 +1,36 @@
 <script lang="ts">
 	import { Button, Input, Label, Modal } from 'flowbite-svelte';
 	import { handleSubmit } from '../../../utils/api';
-	export let open: boolean = false; // modal control
+	import { createEventDispatcher } from 'svelte';
 
-	export let data: Record<string, string> = {};
+	const dispatch = createEventDispatcher();
+	export let open: boolean = false; // modal control
+	export let data: Record<string, any> = {};
+	let employer: any = {};
+	let isNewEmployer: boolean = false;
 
 	function init(form: HTMLFormElement) {
-		for (const key in data) {
+		employer = data.employer;
+		isNewEmployer = Object.keys(employer).length === 0;
+
+		for (const key in employer) {
 			const el = form.elements.namedItem(key);
-			if (el) {
-				if (el instanceof HTMLInputElement) {
-					el.value = data[key];
-				} else if (el instanceof HTMLTextAreaElement) {
-					el.value = data[key];
-				}
+			if (el && (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement)) {
+				el.value = employer[key];
 			}
 		}
 	}
 
 	async function onSubmit(event: Event) {
 		const result = await handleSubmit(event, 'employers');
+
+		const isNew: boolean = !employer.id;
+		const returnedEmployer = isNew ? result.created_employer : result.updated_employer;
+
+		dispatch('employerCreateUpdate', {
+			isNew,
+			employer: returnedEmployer,
+		});
 		open = false;
 		return result;
 	}
@@ -27,13 +38,16 @@
 
 <Modal
 	bind:open
-	title={Object.keys(data).length ? 'Edit Employer' : 'Add new Employer'}
+	title={!isNewEmployer ? 'Edit Employer' : 'Add new Employer'}
 	size="md"
 	class="m-4"
 >
 	<!-- Modal body -->
 	<div class="space-y-6 p-0">
-		<form use:init on:submit|preventDefault={onSubmit}>
+		<form id="add-edit-employer" use:init on:submit|preventDefault={onSubmit}>
+			{#if employer.id}
+				<input type="hidden" name="id" value={employer.id} />
+			{/if}
 			<div class="grid grid-cols-6 gap-6">
 				<Label class="col-span-6 space-y-2 sm:col-span-3">
 					<span>name</span>
@@ -45,6 +59,6 @@
 
 	<!-- Modal footer -->
 	<div slot="footer">
-		<Button type="submit">{Object.keys(data).length ? 'Save all' : 'Add Employer'}</Button>
+		<Button type="submit" form="add-edit-employer">{!isNewEmployer ? 'Save all' : 'Add Employer'}</Button>
 	</div>
 </Modal>

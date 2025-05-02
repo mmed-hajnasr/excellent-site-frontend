@@ -9,17 +9,44 @@
 	import { onMount } from 'svelte';
 	import { authorizedFetch } from '../../../utils/api';
 
+	let dataIsLoaded: boolean = false;
+
 	let Employers: any[] = [];
+
+	async function loadData() {
+		const employersResponse = await authorizedFetch('/employers');
+		const employersBody     = await employersResponse.json();
+		Employers               = employersBody.employers;
+	}
 
 	onMount(async () => {
 		try {
-			const res = await authorizedFetch('/employers');
-			const body = await res.json();
-			Employers = body.employers;
+			await loadData();
+			dataIsLoaded = true;
 		} catch (err) {
 			console.error(err);
 		}
 	});
+
+	function handleEmployerCreateUpdate(event: CustomEvent) {
+		const { employer, isNew } = event.detail;
+
+		if (isNew) {
+			// Add the new employer to the list
+			Employers = [employer, ...Employers];
+		} else {
+			// Update the existing employer in the list
+			const index = Employers.findIndex((s) => s.id === employer.id);
+			if (index !== -1) Employers[index] = employer;
+			Employers = [...Employers];
+		}
+	}
+
+	function handleEmployerDelete(event: CustomEvent) {
+		const { id } = event.detail;
+		// Remove the deleted employer from the list
+		Employers = Employers.filter((employer) => employer.id !== id);
+	}
 
 	let openAddEdit: boolean = false; // modal control
 	let openDelete: boolean = false; // modal control
@@ -36,7 +63,7 @@
 		}
 	}
 
-	let current_strcuture: any = {};
+	let current_employer: any = {};
 	const path: string = '/crud/employers';
 	const title: string = 'Excellent training - employers';
 	const subtitle: string = 'employers';
@@ -62,7 +89,7 @@
 				<Button
 					size="sm"
 					class="gap-2 whitespace-nowrap px-3"
-					on:click={() => ((current_strcuture = {}), (openAddEdit = true))}
+					on:click={() => ((current_employer = {}), (openAddEdit = true))}
 				>
 					<PlusOutline size="sm" />Add employer
 				</Button>
@@ -83,7 +110,7 @@
 						<Button
 							size="sm"
 							class="gap-2 px-3"
-							on:click={() => ((current_strcuture = employer), (openAddEdit = true))}
+							on:click={() => ((current_employer = employer), (openAddEdit = true))}
 						>
 							<EditOutline size="sm" /> Edit employer
 						</Button>
@@ -91,7 +118,7 @@
 							color="red"
 							size="sm"
 							class="gap-2 px-3"
-							on:click={() => ((current_strcuture = employer), (openDelete = true))}
+							on:click={() => ((current_employer = employer), (openDelete = true))}
 						>
 							<TrashBinSolid size="sm" /> Delete employer
 						</Button>
@@ -104,5 +131,15 @@
 
 <!-- Modals -->
 
-<AddEdit bind:open={openAddEdit} data={current_strcuture} />
-<Delete bind:open={openDelete} employer_id={current_strcuture.id} />
+{#if dataIsLoaded}
+<AddEdit
+  bind:open={openAddEdit}
+  on:employerCreateUpdate={handleEmployerCreateUpdate}
+  data={{ employer: current_employer }}
+/>
+{/if}
+<Delete
+  bind:open={openDelete}
+  on:employerDelete={handleEmployerDelete}
+  employer_id={current_employer.id}
+/>
