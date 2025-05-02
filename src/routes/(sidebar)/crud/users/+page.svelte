@@ -9,17 +9,57 @@
 	import { onMount } from 'svelte';
 	import { authorizedFetch, role_name } from '../../../utils/api';
 
+	let dataIsLoaded: boolean = false;
+
 	let Users: any[] = [];
+	let Roles: any[] = [];
+
+	async function loadData() {
+		const usersResponse = await authorizedFetch('/users');
+		const usersBody     = await usersResponse.json();
+		Users               = usersBody.users;
+
+		const rolesResponse = await authorizedFetch('/roles');
+		const rolesBody     = await rolesResponse.json();
+		Roles               = rolesBody.roles;
+	}
+
+	function associateRoles() {
+		Users = Users.map((user) => ({
+			...user,
+			// in case the item is not found, we set the value to undefined
+			role: Roles.find((role) => role.id === user.role_id)?.name,
+		}));
+	}
 
 	onMount(async () => {
 		try {
-			const res = await authorizedFetch('/users');
-			const body = await res.json();
-			Users = body.users;
+			await loadData();
+			associateRoles();
+			dataIsLoaded = true;
 		} catch (err) {
 			console.error(err);
 		}
 	});
+
+	function handleUserCreateUpdate(event: CustomEvent) {
+		const { user, isNew } = event.detail;
+		if (isNew) {
+			// Add the new user to the list
+			Users = [user, ...Users];
+		} else {
+			// Update the existing user in the list
+			const index = Users.findIndex((u) => u.id === user.id);
+			if (index !== -1) Users[index] = user;
+			Users = [...Users];
+		}
+	}
+
+	function handleUserDelete(event: CustomEvent) {
+		const { id } = event.detail;
+		// Remove the deleted user from the list
+		Users = Users.filter((user) => user.id !== id);
+	}
 
 	let searchQuery: string = '';
 	async function search() {
@@ -112,6 +152,15 @@
 </main>
 
 <!-- Modals -->
-
-<AddEdit bind:open={openUser} data={current_user} />
-<Delete bind:open={openDelete} user_id={current_user.id} />
+{#if dataIsLoaded}
+<AddEdit
+  bind:open={openUser}
+  on:userCreateUpdate={handleUserCreateUpdate}
+  data={{ user: current_user, allRoles: Roles }}
+/>
+{/if}
+<Delete
+  bind:open={openDelete}
+  on:userDelete={handleUserDelete}
+  user_id={current_user.id}
+/>
