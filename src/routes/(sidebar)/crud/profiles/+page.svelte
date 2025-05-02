@@ -9,17 +9,44 @@
 	import { onMount } from 'svelte';
 	import { authorizedFetch } from '../../../utils/api';
 
+	let dataIsLoaded: boolean = false;
+
 	let Profiles: any[] = [];
+
+	async function loadData() {
+		const profilesResponse = await authorizedFetch('/profiles');
+		const profilesBody     = await profilesResponse.json();
+		Profiles               = profilesBody.profiles;
+	}
 
 	onMount(async () => {
 		try {
-			const res = await authorizedFetch('/profiles');
-			const body = await res.json();
-			Profiles = body.profiles;
+			await loadData();
+			dataIsLoaded = true;
 		} catch (err) {
 			console.error(err);
 		}
 	});
+
+	function handleProfileCreateUpdate(event: CustomEvent) {	
+		const { profile, isNew } = event.detail;
+
+		if (isNew) {
+			// Add the new profile to the list
+			Profiles = [profile, ...Profiles];
+		} else {
+			// Update the existing profile in the list
+			const index = Profiles.findIndex((p) => p.id === profile.id);
+			if (index !== -1) Profiles[index] = profile;
+			Profiles = [...Profiles];
+		}
+	}
+
+	function handleProfileDelete(event: CustomEvent) {
+		const { id } = event.detail;
+		// Remove the deleted profile from the list
+		Profiles = Profiles.filter((profile) => profile.id !== id);
+	}
 
 	let openAddEdit: boolean = false; // modal control
 	let openDelete: boolean = false; // modal control
@@ -108,6 +135,15 @@
 </main>
 
 <!-- Modals -->
-
-<AddEdit bind:open={openAddEdit} data={current_profile} />
-<Delete bind:open={openDelete} profile_id={current_profile.id} />
+{#if dataIsLoaded}
+<AddEdit
+  bind:open={openAddEdit}
+  on:profileCreateUpdate={handleProfileCreateUpdate}
+  data={{ profile: current_profile }}
+/>
+{/if}
+<Delete
+  bind:open={openDelete}
+  on:profileDelete={handleProfileDelete}
+  profile_id={current_profile.id}
+/>
