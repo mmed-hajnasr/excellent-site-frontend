@@ -13,8 +13,8 @@
 		isLoading = true;
 
 		try {
-			// await authorizedFetch(`/participants/${participant_id}`, { method: 'DELETE' });
-			dispatch('participantDeleted', { id: 2/* participant_id */ }); // i am just returning a static value 2, until i fix the backend then i will uncomment the above line
+			await authorizedFetch(`/participants/${participant_id}`, { method: 'DELETE' });
+			dispatch('participantDelete', { id: participant_id });
 		} catch (err) {
 			console.error('Delete error:', err);
 		} finally {

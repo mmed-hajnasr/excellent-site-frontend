@@ -8,11 +8,13 @@
 	export let data: Record<string, any> = {};
 
 	let participant    : any   = {};
+	let isNewParticipant: boolean = false;
 	let structure_items: any[] = [];
 	let profile_items  : any[] = [];
 
 	function init(form: HTMLFormElement) {
 		participant = data.participant;
+		isNewParticipant = Object.keys(participant).length === 0;
 		structure_items = data.allStructures.map((structure: any) => ({
 			name: structure.name,
 			value: structure.id,
@@ -32,18 +34,16 @@
 
 	async function onSubmit(event: Event) {
 		const result = await handleSubmit(event, 'participants');
-		console.log('result: ', result);
 
 		// Dispatch an event to notify the parent component
 		const isNew: boolean = !participant.id;
 		const returnedParticipant = isNew ? result.created_participant : result.updated_participant;
-		console.log('returnedParticipant: ', returnedParticipant);
 
 		// associate the profile and structure names
 		returnedParticipant.profile = profile_items.find(profile => profile.value === returnedParticipant.profile_id)?.name;
 		returnedParticipant.structure = structure_items.find(structure => structure.value === returnedParticipant.structure_id)?.name;
 
-		dispatch('participantUpdated', { 
+		dispatch('participantCreateUpdate', { 
 			isNew,
 			participant: returnedParticipant,
 		});
@@ -54,7 +54,7 @@
 
 <Modal
 	bind:open
-	title={Object.keys(participant).length ? 'Edit participant' : 'Add new participant'}
+	title={!isNewParticipant ? 'Edit participant' : 'Add new participant'}
 	size="md"
 	class="m-4"
 >
@@ -89,7 +89,6 @@
 						type="tel"
 						class="border outline-none"
 						placeholder="e.g. 56 200 029"
-						required
 					/>
 				</Label>
 				<Label class="col-span-6 space-y-2 sm:col-span-3">
@@ -118,6 +117,6 @@
 
 	<!-- Modal footer -->
 	<div slot="footer">
-		<Button type="submit" form="add-edit-participant">{Object.keys(participant).length ? 'Save all' : 'Add user'}</Button>
+		<Button type="submit" form="add-edit-participant">{!isNewParticipant ? 'Save all' : 'Add user'}</Button>
 	</div>
 </Modal>

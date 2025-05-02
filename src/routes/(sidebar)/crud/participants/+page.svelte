@@ -174,12 +174,12 @@
 {#if dataIsLoaded}
 <AddEdit
   bind:open={openAddEdit}
-  on:participantUpdated={handleParticipantCreateUpdate}
+  on:participantCreateUpdate={handleParticipantCreateUpdate}
   data={{ participant: current_participant, allProfiles: Profiles, allStructures: Structures }}
 />
 {/if}
 <Delete
   bind:open={openDelete}
+  on:participantDelete={handleParticipantDelete}
   participant_id={current_participant.id}
-  on:participantDeleted={handleParticipantDelete}
 />
