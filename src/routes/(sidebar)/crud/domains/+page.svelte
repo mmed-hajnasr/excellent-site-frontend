@@ -6,20 +6,46 @@
 	import AddEdit from './AddEdit.svelte';
 	import Delete from './Delete.svelte';
 	import MetaTag from '../../../utils/MetaTag.svelte';
-
 	import { onMount } from 'svelte';
 	import { authorizedFetch } from '../../../utils/api';
+
+	let dataIsLoaded: boolean = false;
 	let Domains: any[] = [];
+
+	async function loadData() {
+		const domainsResponse = await authorizedFetch('/domains');
+		const domainsBody     = await domainsResponse.json();
+		Domains               = domainsBody.domains;
+	}
 
 	onMount(async () => {
 		try {
-			const res = await authorizedFetch('/domains');
-			const body = await res.json();
-			Domains = body.domains;
+			await loadData();
+			dataIsLoaded = true;
 		} catch (err) {
 			console.error(err);
 		}
 	});
+
+	function handleDomainCreateUpdate(event: CustomEvent) {
+		const { domain, isNew } = event.detail;
+
+		if (isNew) {
+			// Add the new domain to the list
+			Domains = [domain, ...Domains];
+		} else {
+			// Update the existing domain in the list
+			const index = Domains.findIndex((s) => s.id === domain.id);
+			if (index !== -1) Domains[index] = domain;
+			Domains = [...Domains];
+		}
+	}
+
+	function handleDomainDelete(event: CustomEvent) {
+		const { id } = event.detail;
+		// Remove the deleted domain from the list
+		Domains = Domains.filter((domain) => domain.id !== id);
+	}
 
 	let openAddEdit: boolean = false; // modal control
 	let openDelete: boolean = false; // modal control
@@ -37,7 +63,7 @@
 		}
 	}
 
-	let current_strcuture: any = {};
+	let current_domain: any = {};
 	const path: string = '/crud/domains';
 	const title: string = 'Excellent training - domains';
 	const subtitle: string = 'Domains';
@@ -67,7 +93,7 @@
 				<Button
 					size="sm"
 					class="gap-2 whitespace-nowrap px-3"
-					on:click={() => ((current_strcuture = {}), (openAddEdit = true))}
+					on:click={() => ((current_domain = {}), (openAddEdit = true))}
 				>
 					<PlusOutline size="sm" />Add domain
 				</Button>
@@ -88,7 +114,7 @@
 						<Button
 							size="sm"
 							class="gap-2 px-3"
-							on:click={() => ((current_strcuture = domain), (openAddEdit = true))}
+							on:click={() => ((current_domain = domain), (openAddEdit = true))}
 						>
 							<EditOutline size="sm" /> Edit domain
 						</Button>
@@ -96,7 +122,7 @@
 							color="red"
 							size="sm"
 							class="gap-2 px-3"
-							on:click={() => ((current_strcuture = domain), (openDelete = true))}
+							on:click={() => ((current_domain = domain), (openDelete = true))}
 						>
 							<TrashBinSolid size="sm" /> Delete domain
 						</Button>
@@ -109,5 +135,15 @@
 
 <!-- Modals -->
 
-<AddEdit bind:open={openAddEdit} data={current_strcuture} />
-<Delete bind:open={openDelete} domain_id={current_strcuture.id} />
+{#if dataIsLoaded}
+<AddEdit
+  bind:open={openAddEdit}
+  on:domainCreateUpdate={handleDomainCreateUpdate}
+  data={{ domain: current_domain }}
+/>
+{/if}
+<Delete
+  bind:open={openDelete}
+  on:domainDelete={handleDomainDelete}
+  domain_id={current_domain.id}
+/>
