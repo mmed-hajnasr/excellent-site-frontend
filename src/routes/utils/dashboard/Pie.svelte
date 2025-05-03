@@ -8,15 +8,14 @@
 	data.series = [1, 2, 3];
 	data.labels = ['interne', 'Microsoft', 'Apple'];
 	onMount(async () => {
-		// TODO: remove comments
-		// try {
-		// 	const pie_data = await authorizedFetch('/dashboard/employers');
-		// 	let res = await pie_data.json();
-		//           data.series = res.trainers_count;
-		//           data.labels = res.names;
-		// } catch (err) {
-		// 	console.error(err);
-		// }
+		try {
+			const pie_data = await authorizedFetch('/dashboard/employers');
+			let res = await pie_data.json();
+			data.series = res.trainers_count;
+			data.labels = res.names;
+		} catch (err) {
+			console.error(err);
+		}
 	});
 </script>
 
