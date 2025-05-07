@@ -81,7 +81,7 @@
 				<Label class="col-span-6 space-y-2 sm:col-span-3">
 					<span>Duration in days</span>
 					<Input
-						name="duration"
+						name="duration_days"
 						type="number"
 						min="0"
 						step="1"

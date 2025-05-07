@@ -16,14 +16,37 @@
 	let TrainingSessions: any[] = [];
 	let Domains         : any[] = [];
 
+	let Participants: any[] = [];
+	let Profiles    : any[] = [];
+	let Structures  : any[] = [];
+
+	let Trainers   : any[] = [];
+	let Employers  : any[] = [];
+
 	async function loadData() {
 		const trainingSessionsResponse = await authorizedFetch('/training_sessions');
+		const domainsResponse 		   = await authorizedFetch('/domains');
 		const trainingSessionsBody     = await trainingSessionsResponse.json();
+		const domainsBody     		   = await domainsResponse.json();
 		TrainingSessions               = trainingSessionsBody.training_sessions;
+		Domains               		   = domainsBody.domains;
 
-		const domainsResponse = await authorizedFetch('/domains');
-		const domainsBody     = await domainsResponse.json();
-		Domains               = domainsBody.domains;
+		const participantsResponse = await authorizedFetch('/participants');
+		const profilesResponse 	   = await authorizedFetch('/profiles');
+		const structuresResponse   = await authorizedFetch('/structures');
+		const participantsBody     = await participantsResponse.json();
+		const profilesBody 	   	   = await profilesResponse.json();
+		const structuresBody       = await structuresResponse.json();
+		Participants               = participantsBody.participants;
+		Profiles               	   = profilesBody.profiles;
+		Structures                 = structuresBody.structures;
+
+		const trainersResponse  = await authorizedFetch('/trainers');
+		const employersResponse = await authorizedFetch('/employers');
+		const trainersBody      = await trainersResponse.json();
+		const employersBody     = await employersResponse.json();
+		Trainers                = trainersBody.trainers;
+		Employers               = employersBody.employers;
 	}
 
 	function associateDomains() {
@@ -34,10 +57,29 @@
 		}));
 	}
 
+	function associateProfilesAndStructures() {
+		Participants = Participants.map((participant) => ({
+			...participant,
+			// in case the item is not found, we set the value to undefined
+			profile: Profiles.find(profile => profile.id === participant.profile_id)?.name,
+			structure: Structures.find(structure => structure.id === participant.structure_id)?.name,
+		}));
+	}
+
+	function associateEmployers() {
+		Trainers = Trainers.map((trainer) => ({
+			...trainer,
+			// in case the item is not found, we set the value to undefined
+			employer: Employers.find((employer) => employer.id === trainer.employer_id)?.name,
+		}));
+	}
+
 	onMount(async () => {
 		try {
 			await loadData();
 			associateDomains();
+			associateProfilesAndStructures();
+			associateEmployers();
 			dataIsLoaded = true;
 		} catch (err) {
 			console.error(err);
@@ -205,9 +247,11 @@
 <TrainersList 
     bind:open={openTrainers}
     session_id={current_session.id}
+	allTrainers={Trainers}
 />
 
 <ParticipantsList
     bind:open={openParticipants}
     session_id={current_session.id}
+	allParticipants={Participants}
 />
